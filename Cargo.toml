@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "mapper_test",
+    "mapper_proc_macro",
+    "mapper",
+]
