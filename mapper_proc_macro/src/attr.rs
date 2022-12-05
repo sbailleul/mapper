@@ -5,6 +5,7 @@ use syn::punctuated::Punctuated;
 use syn::TypePath;
 use syn::{Attribute, Error, Result, Token};
 
+
 #[derive(Debug)]
 pub struct Attrs<'a> {
     pub to: Option<To<'a>>,
@@ -13,7 +14,7 @@ pub struct Attrs<'a> {
 #[derive(Clone)]
 pub struct To<'a> {
     pub original: &'a Attribute,
-    pub destinations: Vec<TypePath>,
+    pub destinations: Vec<TypePath>
 }
 
 impl Debug for To<'_> {
@@ -35,6 +36,7 @@ pub fn get(input: &[Attribute]) -> Result<Attrs> {
 }
 
 fn parse_to_attribute<'a>(attrs: &mut Attrs<'a>, attr: &'a Attribute) -> Result<()> {
+    
     let types_parser = Punctuated::<TypePath, Token![::]>::parse_terminated;
     let args = attr.parse_args_with(types_parser)?;
 
