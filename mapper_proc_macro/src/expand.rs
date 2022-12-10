@@ -25,9 +25,9 @@ fn impl_struct(input: Struct) -> TokenStream {
             .iter()
             .map(|field| {
                 let destination_field = &field.get_destination_field_by_path(&dest);
-                let source_field = &field.member;
+                let value = field.get_source_value_by_path(&dest);
                 quote::quote! {
-                    #destination_field:self.#source_field.clone()
+                    #destination_field:#value
                 }
             })
             .collect::<Vec<TokenStream>>();
