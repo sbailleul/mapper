@@ -4,7 +4,7 @@ use proc_macro2::{Span, TokenStream};
 
 use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path};
 
-use crate::{attr::{ self, data_type, field}, generics::ParamsInScope};
+use crate::{attr::{ self, data_type, field}};
 
 #[derive(Debug)]
 pub enum Input<'a> {
@@ -31,8 +31,7 @@ pub struct Field<'a> {
     pub original: &'a syn::Field,
     pub attrs: field::Attrs,
     pub member: Member,
-    pub ty: &'a Type,
-    pub contains_generic: bool,
+    pub ty: &'a Type
 }
 
 
@@ -49,9 +48,8 @@ impl<'a> Input<'a> {
 impl<'a> Struct<'a> {
     fn from_syn(node: &'a DeriveInput, data: &'a DataStruct) -> Result<Self> {
         let attrs = attr::data_type::get(node)?;
-        let scope = ParamsInScope::new(&node.generics);
         let span = attrs.span().unwrap_or_else(Span::call_site);
-        let fields = Field::multiple_from_syn(&data.fields, &scope, span)?;
+        let fields = Field::multiple_from_syn(&data.fields,  span)?;
         Ok(Struct {
             original: node,
             attrs,
@@ -66,20 +64,18 @@ impl<'a> Struct<'a> {
 impl<'a> Field<'a> {
     fn multiple_from_syn(
         fields: &'a Fields,
-        scope: &ParamsInScope<'a>,
         span: Span,
     ) -> Result<Vec<Self>> {
         fields
             .iter()
             .enumerate()
-            .map(|(i, field)| Field::from_syn(i, field, scope, span))
+            .map(|(i, field)| Field::from_syn(i, field,  span))
             .collect()
     }
 
     fn from_syn(
         i: usize,
         node: &'a syn::Field,
-        scope: &ParamsInScope<'a>,
         span: Span,
     ) -> Result<Self> {
         Ok(Field {
@@ -91,8 +87,7 @@ impl<'a> Field<'a> {
                     span,
                 })
             }),
-            ty: &node.ty,
-            contains_generic: scope.intersects(&node.ty),
+            ty: &node.ty
         })
     }
 
