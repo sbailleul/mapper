@@ -3,7 +3,7 @@ mod attr;
 mod expand;
 mod generics;
 mod valid;
-
+mod test;
 extern crate proc_macro;
 
 use syn::parse_macro_input;

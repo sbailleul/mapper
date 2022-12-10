@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use syn::punctuated::Punctuated;
 
 use syn::spanned::Spanned;
-use syn::{TypePath, DeriveInput, Path};
+use syn::{DeriveInput, Path};
 use syn::{Attribute, Error, Result, Token};
 
 
@@ -27,7 +27,7 @@ impl Debug for To<'_> {
 pub fn get(node: &DeriveInput) -> Result<Attrs> {
     for attr in &node.attrs {
         if attr.path.is_ident("to") {
-            return parse_attribute( &attr)
+            return parse_attribute( attr)
         }
     }
     Err(Error::new(node.span(), "Should contains exactly one to attribute"))

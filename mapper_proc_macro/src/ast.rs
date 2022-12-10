@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use proc_macro2::{Span, TokenStream};
-use quote::ToTokens;
+
 use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path};
 
 use crate::{attr::{ self, data_type, field}, generics::ParamsInScope};
@@ -48,7 +48,7 @@ impl<'a> Input<'a> {
 
 impl<'a> Struct<'a> {
     fn from_syn(node: &'a DeriveInput, data: &'a DataStruct) -> Result<Self> {
-        let attrs = attr::data_type::get(&node)?;
+        let attrs = attr::data_type::get(node)?;
         let scope = ParamsInScope::new(&node.generics);
         let span = attrs.span().unwrap_or_else(Span::call_site);
         let fields = Field::multiple_from_syn(&data.fields, &scope, span)?;
@@ -84,7 +84,7 @@ impl<'a> Field<'a> {
     ) -> Result<Self> {
         Ok(Field {
             original: node,
-            attrs: attr::field::get(&node)?,
+            attrs: attr::field::get(node)?,
             member: node.ident.clone().map(Member::Named).unwrap_or_else(|| {
                 Member::Unnamed(Index {
                     index: i as u32,

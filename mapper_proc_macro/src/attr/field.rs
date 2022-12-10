@@ -1,12 +1,11 @@
-use std::error::Error;
+#[path = "../test/attr/field_test.rs"]
+pub mod field_test;
 
-use proc_macro2::{Ident, TokenStream};
-use quote::__private::parse;
 use syn::parse::Parse;
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
-use syn::{custom_keyword,  Path};
-use syn::{Attribute, Expr, ExprAssign, ExprPath, Token, Type, TypePath};
+use syn::{Path, parse_macro_input};
+use syn::{Expr, Token};
 use thiserror::Error;
 
 pub struct Attrs {
@@ -84,13 +83,12 @@ pub fn get(input: &syn::Field) -> syn::Result<Attrs> {
 }
 
 #[test]
-fn test_parse_to() {
-    let input = r#"Vehicule, field=name"#;
-    let stream: TokenStream = input
-        .parse()
-        .expect("std::error::Error is not implemented for LexError 😢");
-    let parsed = match syn::parse2::<To>(stream) {
-        Ok(parsed) => parsed,
-        Err(err) => panic!("{}", err),
-    };
+fn should_create_fully_configured_to() {
+    let input = r#"Vehicule, field=name, with=mapfunc"#;
+    let stream = input.parse().unwrap();
+    let res = syn::parse2::<To>(stream).unwrap();
+    assert_eq!("Vehicule", res.ty.get_ident().unwrap().to_string());
+    assert_eq!("name", res.field.unwrap().get_ident().unwrap().to_string());
+    assert_eq!("mapfunc", res.with.unwrap().get_ident().unwrap().to_string());
 }
+

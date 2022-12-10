@@ -1,9 +1,9 @@
 
-use quote::ToTokens;
+
 use syn::{Error, Result, spanned::Spanned};
 use thiserror::Error;
 
-use crate::{ast::{Input, Struct},attr::{data_type:: {Attrs}}};
+use crate::{ast::{Input, Struct}};
 impl Input<'_> {
     pub(crate) fn validate(&self) -> Result<()> {
         match self {
