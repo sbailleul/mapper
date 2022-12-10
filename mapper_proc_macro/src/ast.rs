@@ -1,9 +1,9 @@
 use std::fmt::Debug;
 
 use proc_macro2::Span;
-use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned};
+use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path};
 
-use crate::{attr::{Attrs, self}, generics::ParamsInScope};
+use crate::{attr::{ self, data_type, field}, generics::ParamsInScope};
 
 #[derive(Debug)]
 pub enum Input<'a> {
@@ -12,7 +12,7 @@ pub enum Input<'a> {
 
 pub struct Struct<'a> {
     pub original: &'a DeriveInput,
-    pub attrs: Attrs<'a>,
+    pub attrs: data_type::Attrs<'a>,
     pub ident: Ident,
     pub generics: &'a Generics,
     pub fields: Vec<Field<'a>>,
@@ -28,7 +28,7 @@ impl Debug for Struct<'_>{
 
 pub struct Field<'a> {
     pub original: &'a syn::Field,
-    pub attrs: Attrs<'a>,
+    pub attrs: field::Attrs,
     pub member: Member,
     pub ty: &'a Type,
     pub contains_generic: bool,
@@ -47,7 +47,7 @@ impl<'a> Input<'a> {
 
 impl<'a> Struct<'a> {
     fn from_syn(node: &'a DeriveInput, data: &'a DataStruct) -> Result<Self> {
-        let attrs = attr::get(&node.attrs)?;
+        let attrs = attr::data_type::get(&node)?;
         let scope = ParamsInScope::new(&node.generics);
         let span = attrs.span().unwrap_or_else(Span::call_site);
         let fields = Field::multiple_from_syn(&data.fields, &scope, span)?;
@@ -83,7 +83,7 @@ impl<'a> Field<'a> {
     ) -> Result<Self> {
         Ok(Field {
             original: node,
-            attrs: attr::get(&node.attrs)?,
+            attrs: attr::field::get(&node)?,
             member: node.ident.clone().map(Member::Named).unwrap_or_else(|| {
                 Member::Unnamed(Index {
                     index: i as u32,
@@ -94,11 +94,20 @@ impl<'a> Field<'a> {
             contains_generic: scope.intersects(&node.ty),
         })
     }
+
+    pub fn get_destination_field_by_path(&self, path: &Path) -> Ident{
+        if let Some(to) = self.attrs.to.iter().find(|&to| to.ty.get_ident() == path.get_ident()){
+            to.field.as_ref().unwrap().get_ident().unwrap().clone()
+        }else{
+            self.original.ident.clone().unwrap()
+        }
+    }
+
 }
 
-impl Attrs<'_> {
+impl data_type::Attrs<'_> {
     pub fn span(&self) -> Option<Span> {
-        self.to.as_ref().map(|to| to.original.span())
+        Some(self.to.original.span())
     }
 }
 

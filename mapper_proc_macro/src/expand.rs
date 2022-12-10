@@ -20,34 +20,29 @@ fn impl_struct(input: Struct) -> TokenStream {
     let (_impl_generics, _ty_generics, _where_clause) = input.generics.split_for_impl();
     let mut tokens = TokenStream::new();
 
-    let fields = input
-        .fields
-        .iter()
-        .map(|field| {
-            let field_original = &field.member;
-            quote::quote! {
-                #field_original:self.#field_original.clone()
-            }
-        })
-        .collect::<Vec<TokenStream>>();
-
-    if let Some(to) = input.attrs.to {
-        let implementations = to
-            .destinations
+    for dest in input.attrs.to.destinations {
+        let fields = input.fields
             .iter()
-            .map(|d| {
+            .map(|field| {
+                let destination_field = &field.get_destination_field_by_path(&dest);
+                let source_field = &field.member;
                 quote::quote! {
-                    impl Mapper<#d> for #ty {
-                        fn to(&self)->#d{
-                            #d{
-                                #(#fields)*,
-                            }
-                        }
-                    }
+                    #destination_field:self.#source_field.clone()
                 }
             })
             .collect::<Vec<TokenStream>>();
-        tokens.append_all(&implementations);
+
+        let implementation = quote::quote! {
+            impl Mapper<#dest> for #ty {
+                fn to(&self)->#dest{
+                    #dest{
+                        #(#fields)*,
+                    }
+                }
+            }
+        };
+        tokens.append_all(implementation);
     }
+
     tokens
 }
