@@ -1,5 +1,5 @@
 [package]
-name = "mapper-impl"
+name = "mapper_impl"
 version = "1.0.1"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 description = "Implementation detail of the `mapper` crate"
@@ -18,5 +18,5 @@ syn = {version="1.0.75",features=["full","fold"]}
 quote = "1.0.21"
 proc-macro2 = "1.0.47"
 thiserror="1.0.37"
-mapper-api={version="=1.0.1", path="../api"}
+mapper_api={version="=1.0.1", path="../api"}
 

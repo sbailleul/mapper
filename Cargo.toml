@@ -11,8 +11,8 @@ repository = "https://github.com/sbailleul/mapper"
 rust-version = "1.64"
 
 [dependencies]
-mapper-impl = { version = "=1.0.1", path = "impl" }
-mapper-api = { version = "=1.0.1", path = "api" }
+mapper_impl = { version = "=1.0.1", path = "impl" }
+mapper_api = { version = "=1.0.1", path = "api" }
 
 [workspace]
 members = [

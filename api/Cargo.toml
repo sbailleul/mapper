@@ -1,5 +1,5 @@
 [package]
-name = "mapper-api"
+name = "mapper_api"
 version = "1.0.1"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 description = "Api of the `mapper` crate"
