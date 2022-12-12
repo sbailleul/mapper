@@ -8,11 +8,11 @@ edition = "2021"
 keywords = ["error", "error-handling", "derive"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sbailleul/mapper"
-rust-version = "1.64"
+rust-version = "1.56"
 
 [dependencies]
-mapper_impl = { version = "=1.0.1", path = "impl" }
-mapper_api = { version = "=1.0.1", path = "api" }
+mapper-impl = { version = "=1.0.1", path = "impl" }
+mapper-api = { version = "=1.0.1", path = "api" }
 
 [workspace]
 members = [

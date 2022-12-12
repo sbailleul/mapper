@@ -1,12 +1,12 @@
 [package]
-name = "mapper_api"
+name = "mapper-api"
 version = "1.0.1"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 description = "Api of the `mapper` crate"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sbailleul/mapper"
-rust-version = "1.64"
+rust-version = "1.56"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

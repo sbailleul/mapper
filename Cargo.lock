@@ -6,19 +6,19 @@ version = 3
 name = "mapper"
 version = "1.0.1"
 dependencies = [
- "mapper_api",
- "mapper_impl",
+ "mapper-api",
+ "mapper-impl",
 ]
 
 [[package]]
-name = "mapper_api"
+name = "mapper-api"
 version = "1.0.1"
 
 [[package]]
-name = "mapper_impl"
+name = "mapper-impl"
 version = "1.0.1"
 dependencies = [
- "mapper_api",
+ "mapper-api",
  "proc-macro2",
  "quote",
  "syn",
