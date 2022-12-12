@@ -1,6 +1,6 @@
 [package]
 name = "mapper"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 categories = ["rust-patterns"]
 description = "derive(Mapper)"
@@ -12,8 +12,8 @@ rust-version = "1.56"
 doctest = false
 
 [dependencies]
-mapper-impl = { version = "=1.0.1", path = "impl" }
-mapper-api = { version = "=1.0.1", path = "api" }
+mapper-impl = { version = "=1.0.2", path = "impl" }
+mapper-api = { version = "=1.0.2", path = "api" }
 
 [workspace]
 members = [

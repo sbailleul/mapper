@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "mapper"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
  "mapper-api",
  "mapper-impl",
@@ -12,11 +12,11 @@ dependencies = [
 
 [[package]]
 name = "mapper-api"
-version = "1.0.1"
+version = "1.0.2"
 
 [[package]]
 name = "mapper-impl"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "mapper-api",
  "proc-macro2",
