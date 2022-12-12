@@ -18,5 +18,5 @@ syn = {version="1.0.75",features=["full","fold"]}
 quote = "1.0.21"
 proc-macro2 = "1.0.47"
 thiserror="1.0.37"
-mapper-api={path="../api"}
+mapper-api={version="=1.0.1", path="../api"}
 

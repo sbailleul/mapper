@@ -2,7 +2,7 @@
 name = "mapper-api"
 version = "1.0.1"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
-description = "Implementation detail of the `mapper` crate"
+description = "Api of the `mapper` crate"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sbailleul/mapper"
