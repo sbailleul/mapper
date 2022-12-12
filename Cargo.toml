@@ -1,6 +1,6 @@
 [package]
 name = "mapper"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 categories = ["rust-patterns"]
 description = "derive(Mapper)"
@@ -9,6 +9,7 @@ keywords = ["decoupling", "mapping", "derive"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sbailleul/mapper"
 rust-version = "1.56"
+doctest = false
 
 [dependencies]
 mapper-impl = { version = "=1.0.1", path = "impl" }
@@ -19,3 +20,4 @@ members = [
     "api",
     "impl",
 ]
+

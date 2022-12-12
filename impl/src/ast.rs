@@ -26,7 +26,7 @@ impl Debug for Struct<'_>{
     }
 }
 
-
+#[derive(Debug)]
 pub struct Field<'a> {
     pub original: &'a syn::Field,
     pub attrs: field::Attrs,
@@ -50,6 +50,7 @@ impl<'a> Struct<'a> {
         let attrs = attr::data_type::get(node)?;
         let span = attrs.span().unwrap_or_else(Span::call_site);
         let fields = Field::multiple_from_syn(&data.fields,  span)?;
+
         Ok(Struct {
             original: node,
             attrs,
@@ -102,7 +103,7 @@ impl<'a> Field<'a> {
     pub fn get_source_value_by_path(&self, path: &Path) -> TokenStream{
         let original = &self.member;
         if let Some(with) = self.get_to_by_type(path).and_then(|to| to.with.as_ref()){
-            quote::quote!{#with(self.#original.clone())}
+            quote::quote!{#with(&self.#original)}
         }else{
             quote::quote!{self.#original.clone()}
         }

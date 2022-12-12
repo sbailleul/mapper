@@ -6,11 +6,12 @@ use syn::{Path};
 use syn::{Expr, Token};
 use thiserror::Error;
 
+#[derive(Debug)]
 pub struct Attrs {
     pub to: Vec<To>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct To {
     pub ty: Path,
     pub field: Option<Path>,

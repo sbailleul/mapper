@@ -30,12 +30,11 @@ fn impl_struct(input: Struct) -> TokenStream {
                 }
             })
             .collect::<Vec<TokenStream>>();
-
         let implementation = quote::quote! {
             impl Mapper<#dest> for #ty {
                 fn to(&self)->#dest{
                     #dest{
-                        #(#fields)*,
+                        #(#fields),*
                     }
                 }
             }
