@@ -6,9 +6,6 @@ use mapper_impl::Mapper;
 
 #[test]
 pub fn derive_should_clone_multiple_fields() {
-    fn map_account_id(account_id: &u16) -> String {
-        account_id.to_string()
-    }
     #[derive(Mapper)]
     #[to(Person)]
     struct User {
