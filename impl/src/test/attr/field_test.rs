@@ -1,8 +1,10 @@
+#[allow(unused_imports)]
+use crate::{
+    attr::field::{To, ToCreationError},
+    test::parse_str_success,
+};
 #[cfg(test)]
-use syn::{Path};
-use crate::attr::field::{To, ToCreationError};
-use crate::test::parse_str_success;
-
+use syn::Path;
 
 #[test]
 fn should_create_field_configured_to() {
@@ -15,16 +17,20 @@ fn should_create_field_configured_to() {
 fn should_create_with_configured_to() {
     let res = parse_str_success::<To>(r#"Vehicule, with=mapfunc"#);
     assert_eq!("Vehicule", res.ty.get_ident().unwrap().to_string());
-    assert_eq!("mapfunc", res.with.unwrap().get_ident().unwrap().to_string());
+    assert_eq!(
+        "mapfunc",
+        res.with.unwrap().get_ident().unwrap().to_string()
+    );
 }
-
-
 
 #[test]
 fn should_create_fully_configured_to() {
     let res = parse_str_success::<To>(r#"Vehicule, with=mapfunc, field=name"#);
     assert_eq!("Vehicule", res.ty.get_ident().unwrap().to_string());
-    assert_eq!("mapfunc", res.with.unwrap().get_ident().unwrap().to_string());
+    assert_eq!(
+        "mapfunc",
+        res.with.unwrap().get_ident().unwrap().to_string()
+    );
     assert_eq!("name", res.field.unwrap().get_ident().unwrap().to_string());
 }
 
