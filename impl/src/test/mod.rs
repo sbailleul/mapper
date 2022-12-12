@@ -1,4 +1,5 @@
-use syn::{Expr, parse, Error};
+use syn::{parse, Error};
+mod attr;
 
 pub fn parse_str_success<T: parse::Parse>(input: &str) -> T{
     let stream = input.parse().unwrap();

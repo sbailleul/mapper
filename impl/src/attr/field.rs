@@ -1,10 +1,8 @@
-#[path = "../test/attr/field_test.rs"]
-pub mod field_test;
+
 
 use syn::parse::Parse;
 use syn::punctuated::Punctuated;
-use syn::spanned::Spanned;
-use syn::{Path, parse_macro_input};
+use syn::{Path};
 use syn::{Expr, Token};
 use thiserror::Error;
 
@@ -27,7 +25,7 @@ pub enum ToCreationError{
 }
 
 impl To {
-    fn new(ty: Option<Path>, field: Option<Path>, with: Option<Path>) -> Result<Self, ToCreationError>{
+    pub fn new(ty: Option<Path>, field: Option<Path>, with: Option<Path>) -> Result<Self, ToCreationError>{
         if field.is_none() && with.is_none(){
             Err(ToCreationError::MissingConfigField)
         }else if ty.is_none(){
