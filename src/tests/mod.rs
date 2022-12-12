@@ -1,0 +1,1 @@
+mod automatic_map;
