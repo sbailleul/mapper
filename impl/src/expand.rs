@@ -8,7 +8,6 @@ use crate::ast::Struct;
 
 pub fn derive(node: &DeriveInput) -> Result<TokenStream> {
     let input = Input::from_syn(node)?;
-    dbg!("{}", &input);
     input.validate()?;
     Ok(match input {
         Input::Struct(input) => impl_struct(input),

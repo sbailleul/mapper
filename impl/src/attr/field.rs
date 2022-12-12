@@ -49,17 +49,7 @@ impl Parse for To {
         for arg in args {
             match arg {
                 Expr::Assign(assign) => {
-                    if let Expr::Path(config) = *assign.left {
-                        if config.path.is_ident("field") {
-                            if let Expr::Path(dst_field) = *assign.right {
-                                field = Some(dst_field.path);
-                            }
-                        } else if config.path.is_ident("with") {
-                            if let Expr::Path(with_fn) = *assign.right {
-                                with = Some(with_fn.path);
-                            }
-                        }
-                    }
+                    parse_config(assign, &mut field, &mut with);
                 }
                 Expr::Path(path) => {
                     ty = Some(path.path);
@@ -68,6 +58,20 @@ impl Parse for To {
             }
         }
         To::new( ty, field, with).map_err(|err| syn::Error::new(input.span(), err))
+    }
+}
+
+fn parse_config(assign: syn::ExprAssign, field: &mut Option<Path>, with: &mut Option<Path>) {
+    if let Expr::Path(config) = *assign.left {
+        if config.path.is_ident("field") {
+            if let Expr::Path(dst_field) = *assign.right {
+                *field = Some(dst_field.path);
+            }
+        } else if config.path.is_ident("with") {
+            if let Expr::Path(with_fn) = *assign.right {
+                *with = Some(with_fn.path);
+            }
+        }
     }
 }
 
@@ -82,13 +86,4 @@ pub fn get(input: &syn::Field) -> syn::Result<Attrs> {
     Ok(Attrs { to: to_attributes })
 }
 
-#[test]
-fn should_create_fully_configured_to() {
-    let input = r#"Vehicule, field=name, with=mapfunc"#;
-    let stream = input.parse().unwrap();
-    let res = syn::parse2::<To>(stream).unwrap();
-    assert_eq!("Vehicule", res.ty.get_ident().unwrap().to_string());
-    assert_eq!("name", res.field.unwrap().get_ident().unwrap().to_string());
-    assert_eq!("mapfunc", res.with.unwrap().get_ident().unwrap().to_string());
-}
 

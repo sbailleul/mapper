@@ -1,0 +1,22 @@
+[package]
+name = "mapper-impl"
+version = "1.0.1"
+authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
+description = "Implementation detail of the `mapper` crate"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sbailleul/mapper"
+rust-version = "1.64"
+
+[lib]
+proc-macro = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+syn = {version="1.0.75",features=["full","fold"]}
+quote = "1.0.21"
+proc-macro2 = "1.0.47"
+thiserror="1.0.37"
+mapper-api={path="../api"}
+

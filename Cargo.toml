@@ -1,7 +1,21 @@
-[workspace]
+[package]
+name = "mapper"
+version = "1.0.1"
+authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
+categories = ["rust-patterns"]
+description = "derive(Mapper)"
+edition = "2021"
+keywords = ["error", "error-handling", "derive"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sbailleul/mapper"
+rust-version = "1.64"
 
+[dependencies]
+mapper-impl = { version = "=1.0.1", path = "impl" }
+mapper-api = { version = "=1.0.1", path = "api" }
+
+[workspace]
 members = [
-    "mapper_test",
-    "mapper_proc_macro",
-    "mapper",
+    "api",
+    "impl",
 ]

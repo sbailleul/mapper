@@ -1,4 +1,6 @@
-use syn::Path;
+use syn::{Path, AttributeArgs};
+use syn::parse::ParseStream;
+use syn::token::Struct;
 
 use crate::attr::field::To;
 use crate::test::{parse_str_err, parse_str_success};
