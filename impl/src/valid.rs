@@ -24,9 +24,9 @@ impl Struct<'_> {
             .attrs
             .to
             .iter()
-            .find(|&to| self.attrs.to.destinations.iter().all(|dest| to.ty.get_ident() != dest.get_ident())); 
+            .find(|&to| self.attrs.to.params.destinations.iter().all(|dest| to.params.ty.get_ident() != dest.get_ident())); 
             if let Some(non_referenced_type) = non_referenced_type{
-                return Err(Error::new(self.original.span(), StructError::DestinationNotFound(non_referenced_type.ty.get_ident().unwrap().to_string())))
+                return Err(Error::new(self.original.span(), StructError::DestinationNotFound(non_referenced_type.params.ty.get_ident().unwrap().to_string())))
             }
         }
         Ok(())

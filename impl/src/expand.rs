@@ -19,7 +19,7 @@ fn impl_struct(input: Struct) -> TokenStream {
     let (_impl_generics, _ty_generics, _where_clause) = input.generics.split_for_impl();
     let mut tokens = TokenStream::new();
 
-    for dest in input.attrs.to.destinations {
+    for dest in input.attrs.to.params.destinations {
         let fields = input.fields
             .iter()
             .map(|field| {

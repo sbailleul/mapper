@@ -42,3 +42,22 @@ pub fn derive_should_clone_one_field() {
     let person: Person = user.to();
     assert_eq!(person.name, user.name);
 }
+
+
+#[test]
+pub fn derive_should_works_with_generic_types() {
+    #[derive(Mapper)]
+    #[to(Person<String>)]
+    struct User {
+        name: String,
+    }
+    struct Person<T> {
+        name: T,
+    }
+    let user = User {
+        name: "Marie".to_string(),
+    };
+    let person: Person<String> = user.to();
+    assert_eq!(person.name, user.name);
+}
+

@@ -29,7 +29,7 @@ impl Debug for Struct<'_>{
 #[derive(Debug)]
 pub struct Field<'a> {
     pub original: &'a syn::Field,
-    pub attrs: field::Attrs,
+    pub attrs: field::Attrs<'a>,
     pub member: Member,
     pub ty: &'a Type
 }
@@ -93,7 +93,7 @@ impl<'a> Field<'a> {
     }
 
     pub fn get_destination_field_by_path(&self, path: &Path) -> Ident{
-        if let Some(field) = self.get_to_by_type(path).and_then(|to| to.field.as_ref()){
+        if let Some(field) = self.get_to_by_type(path).and_then(|to| to.params.field.as_ref()){
             field.get_ident().unwrap().clone()
         }else{
             self.original.ident.clone().unwrap()
@@ -102,7 +102,7 @@ impl<'a> Field<'a> {
 
     pub fn get_source_value_by_path(&self, path: &Path) -> TokenStream{
         let original = &self.member;
-        if let Some(with) = self.get_to_by_type(path).and_then(|to| to.with.as_ref()){
+        if let Some(with) = self.get_to_by_type(path).and_then(|to| to.params.with.as_ref()){
             quote::quote!{#with(&self.#original)}
         }else{
             quote::quote!{self.#original.clone()}
@@ -110,7 +110,7 @@ impl<'a> Field<'a> {
     }
 
     fn get_to_by_type(&self, path: &Path) -> Option<&field::To> {
-        self.attrs.to.iter().find(|&to| to.ty.get_ident() == path.get_ident())
+        self.attrs.to.iter().find(|&to| to.params.ty.get_ident() == path.get_ident())
     }
 }
 
