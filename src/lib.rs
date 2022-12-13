@@ -69,7 +69,7 @@ impl Mapper<Person> for User{
 # To field attribute
 - You can put multiple to attribute by field
 - Syntax of this attribute : ```#[to(<DestinationType>, field=<destination_field>, with=<transformation_function>)]```
-- This attribute is forbidden if you use only <DestinationType> 
+- This attribute is forbidden if you use only DestinationType 
 
 ## DestinationType 
 This parameter is mandatory and have to be present in the [To struct attribute](#to-struct-attribute)
