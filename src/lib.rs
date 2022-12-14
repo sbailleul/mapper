@@ -37,7 +37,6 @@ struct Person{
 
 # Disclaimer
 - Macro works only on C style struct like : struct MyStruct{field: u8}
-- Mapper doesn't handle generics
 - Mapper doesn't handle nested properties
 
 
@@ -72,13 +71,48 @@ impl Mapper<Person> for User{
 - This attribute is forbidden if you use only DestinationType 
 
 ## DestinationType 
-This parameter is mandatory and have to be present in the [To struct attribute](#to-struct-attribute)
+This parameter is mandatory and have to be present in the [To struct attribute](#to-struct-attribute). 
+### Generics 
+You can specify destination type with generics, these generics should be compatible with the fields of your src struct : 
+```ignore
+#[derive(Mapper)]
+#[to(Person::<String, u8>)]
+struct User {
+    name: String,
+    age: u8
+}
+struct Person<T, U> {
+    name: T,
+    age: U
+}
+```
 
 ## Field 
 Optional parameter, target the destination type field
 
 ## With 
-Optional parameter, provide a function to transform the annotated field to the destination field
+Optional parameter, provide a function to transform the annotated field to the destination field. Signature of the function should be :  
+```ignore
+fn foo_mapping(val: &<src_field_type>)-><dst_field_type>
+``` 
+
+### Generics
+You can use generics in your function if the generic types constraint respect the source field type and destination field type :   
+```ignore
+    fn gen_func<T: Display>(val: &T)->String{
+        val.to_string()
+    }
+    #[derive(Mapper)]
+    #[to(Person)]
+    struct User {
+        #[to(Person, with=gen_func)]
+        age: u16,
+    }
+    struct Person {
+        age: String,
+    }
+```
+
 */
 
 pub use mapper_impl::*;

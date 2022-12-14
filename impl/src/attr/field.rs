@@ -1,6 +1,6 @@
 use syn::parse::Parse;
 use syn::punctuated::Punctuated;
-use syn::{Error, Path, Attribute};
+use syn::{Error, Path, Attribute, Type, TypePath};
 use syn::{Expr, Token};
 use thiserror::Error;
 
@@ -17,7 +17,7 @@ pub struct To<'a> {
 
 #[derive(Clone, Debug)]
 pub struct Params {
-    pub ty: Path,
+    pub ty: TypePath,
     pub field: Option<Path>,
     pub with: Option<Path>,
 }
@@ -25,24 +25,20 @@ pub struct Params {
 #[derive(Error, Debug)]
 pub enum ToCreationError {
     #[error("to attribute should be used with at least field or with")]
-    MissingConfigField,
-    #[error("to attribute destination type is mandatory")]
-    MissingDestination,
+    MissingConfigField
 }
 
 impl Params {
     pub fn new(
-        ty: Option<Path>,
+        ty: TypePath,
         field: Option<Path>,
         with: Option<Path>,
     ) -> Result<Self, ToCreationError> {
         if field.is_none() && with.is_none() {
             Err(ToCreationError::MissingConfigField)
-        } else if ty.is_none() {
-            Err(ToCreationError::MissingDestination)
         } else {
             Ok(Self {
-                ty: ty.unwrap(),
+                ty,
                 field,
                 with,
             })
@@ -54,27 +50,25 @@ impl Parse for Params {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut field: Option<Path> = None;
         let mut with: Option<Path> = None;
-        let mut ty: Option<Path> = None;
-        let args = Punctuated::<Expr, Token![,]>::parse_separated_nonempty(input)
-            .expect("Attribute shouldn't be empty");
-        for arg in args {
-            match arg {
-                Expr::Assign(assign) => {
-                    if ty.is_none() {
-                        return Err(Error::new_spanned(
-                            assign,
-                            "Destination type should be specified at first position",
-                        ));
-                    }
-                    parse_config(assign, &mut field, &mut with);
-                }
-                Expr::Path(path) => {
-                    ty = Some(path.path);
-                }
-                _ => (),
+
+        if let Ok(Type::Path(ty))= input.parse::<Type>(){
+            if !input.is_empty(){
+                input.parse::<Token![,]>().expect("If there is arguments destination type should be followed by a comma");
             }
+            let args = Punctuated::<Expr, Token![,]>::parse_separated_nonempty(input)
+            .expect("Attribute shouldn't be empty");
+            for arg in args {
+                match arg {
+                    Expr::Assign(assign) => {
+                        parse_config(assign, &mut field, &mut with);
+                    }
+                    _ => (),
+                }
+            }
+            Params::new(ty, field, with).map_err(|err| syn::Error::new(input.span(), err))
+        } else{
+            Err(Error::new(input.span(), "Destination type should be specified at first position"))
         }
-        Params::new(ty, field, with).map_err(|err| syn::Error::new(input.span(), err))
     }
 }
 

@@ -1,2 +1,2 @@
-mod automatic_map;
+mod struct_map;
 mod field_map;

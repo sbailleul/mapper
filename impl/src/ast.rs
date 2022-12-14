@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use proc_macro2::{Span, TokenStream};
 
-use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path};
+use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path, TypePath};
 
 use crate::{attr::{ self, data_type, field}};
 
@@ -92,7 +92,7 @@ impl<'a> Field<'a> {
         })
     }
 
-    pub fn get_destination_field_by_path(&self, path: &Path) -> Ident{
+    pub fn get_destination_field_by_path(&self, path: &TypePath) -> Ident{
         if let Some(field) = self.get_to_by_type(path).and_then(|to| to.params.field.as_ref()){
             field.get_ident().unwrap().clone()
         }else{
@@ -100,7 +100,7 @@ impl<'a> Field<'a> {
         }
     }
 
-    pub fn get_source_value_by_path(&self, path: &Path) -> TokenStream{
+    pub fn get_source_value_by_path(&self, path: &TypePath) -> TokenStream{
         let original = &self.member;
         if let Some(with) = self.get_to_by_type(path).and_then(|to| to.params.with.as_ref()){
             quote::quote!{#with(&self.#original)}
@@ -109,8 +109,8 @@ impl<'a> Field<'a> {
         }
     }
 
-    fn get_to_by_type(&self, path: &Path) -> Option<&field::To> {
-        self.attrs.to.iter().find(|&to| to.params.ty.get_ident() == path.get_ident())
+    fn get_to_by_type(&self, type_path: &TypePath) -> Option<&field::To> {
+        self.attrs.to.iter().find(|&to| to.params.ty.path.get_ident() == type_path.path.get_ident())
     }
 }
 
