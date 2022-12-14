@@ -1,6 +1,6 @@
 [package]
 name = "mapper"
-version = "1.0.6"
+version = "1.0.7"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 categories = ["rust-patterns"]
 description = "derive(Mapper)"

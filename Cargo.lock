@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "mapper"
-version = "1.0.6"
+version = "1.0.7"
 dependencies = [
  "mapper-api",
  "mapper-impl",
