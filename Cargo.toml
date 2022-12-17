@@ -8,6 +8,7 @@ edition = "2021"
 keywords = ["decoupling", "mapping", "derive"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sbailleul/mapper"
+documentation = "https://docs.rs/mapper"
 rust-version = "1.56"
 doctest = false
 

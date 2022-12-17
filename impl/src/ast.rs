@@ -4,7 +4,7 @@ use proc_macro2::{Span, TokenStream};
 
 use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path, TypePath};
 
-use crate::{attr::{ self, data_type, field}};
+use crate::{attr::{ self, data_type, field, mapping_strategy::MappingStrategy}};
 
 #[derive(Debug)]
 pub enum Input<'a> {
@@ -48,8 +48,7 @@ impl<'a> Input<'a> {
 impl<'a> Struct<'a> {
     fn from_syn(node: &'a DeriveInput, data: &'a DataStruct) -> Result<Self> {
         let attrs = attr::data_type::get(node)?;
-        let span = attrs.span().unwrap_or_else(Span::call_site);
-        let fields = Field::multiple_from_syn(&data.fields,  span)?;
+        let fields = Field::multiple_from_syn(&data.fields)?;
 
         Ok(Struct {
             original: node,
@@ -64,29 +63,24 @@ impl<'a> Struct<'a> {
 
 impl<'a> Field<'a> {
     fn multiple_from_syn(
-        fields: &'a Fields,
-        span: Span,
+        fields: &'a Fields
     ) -> Result<Vec<Self>> {
         fields
             .iter()
             .enumerate()
-            .map(|(i, field)| Field::from_syn(i, field,  span))
+            .map(|(i, field)| Field::from_syn(i, field))
             .collect()
     }
 
     fn from_syn(
         i: usize,
-        node: &'a syn::Field,
-        span: Span,
+        node: &'a syn::Field
     ) -> Result<Self> {
         Ok(Field {
             original: node,
             attrs: attr::field::get(node)?,
             member: node.ident.clone().map(Member::Named).unwrap_or_else(|| {
-                Member::Unnamed(Index {
-                    index: i as u32,
-                    span,
-                })
+                Member::Unnamed(Index::from(i))
             }),
             ty: &node.ty
         })
@@ -100,23 +94,20 @@ impl<'a> Field<'a> {
         }
     }
 
-    pub fn get_source_value_by_path(&self, path: &TypePath) -> TokenStream{
+    pub fn get_source_value_by_path(&self, path: &TypePath, strategy: &MappingStrategy) -> TokenStream{
         let original = &self.member;
         if let Some(with) = self.get_to_by_type(path).and_then(|to| to.params.with.as_ref()){
             quote::quote!{#with(&self.#original)}
         }else{
-            quote::quote!{self.#original.clone()}
+            match strategy{
+                MappingStrategy::Into => quote::quote!(self.#original),
+                MappingStrategy::Mapper => quote::quote!{self.#original.clone()},
+            }
         }
     }
 
     fn get_to_by_type(&self, type_path: &TypePath) -> Option<&field::To> {
         self.attrs.to.iter().find(|&to| to.params.ty.path.get_ident() == type_path.path.get_ident())
-    }
-}
-
-impl data_type::Attrs<'_> {
-    pub fn span(&self) -> Option<Span> {
-        Some(self.to.original.span())
     }
 }
 

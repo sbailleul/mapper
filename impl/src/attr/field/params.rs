@@ -1,20 +1,12 @@
-use syn::parse::Parse;
-use syn::punctuated::Punctuated;
-use syn::{Error, Path, Attribute, Type, TypePath};
-use syn::{Expr, Token};
+
+use syn::{TypePath, Path, parse::Parse, Type, Token, punctuated::Punctuated, Expr, Error};
 use thiserror::Error;
 
-#[derive(Debug)]
-pub struct Attrs<'a> {
-    pub to: Vec<To<'a>>,
+#[derive(Error, Debug)]
+pub enum ParamsError {
+    #[error("to attribute should be used with at least field or with")]
+    MissingConfigField
 }
-
-#[derive(Clone, Debug)]
-pub struct To<'a> {
-    pub original: &'a Attribute,
-    pub params: Params
-}
-
 #[derive(Clone, Debug)]
 pub struct Params {
     pub ty: TypePath,
@@ -22,20 +14,14 @@ pub struct Params {
     pub with: Option<Path>,
 }
 
-#[derive(Error, Debug)]
-pub enum ToCreationError {
-    #[error("to attribute should be used with at least field or with")]
-    MissingConfigField
-}
-
 impl Params {
     pub fn new(
         ty: TypePath,
         field: Option<Path>,
         with: Option<Path>,
-    ) -> Result<Self, ToCreationError> {
+    ) -> Result<Self, ParamsError> {
         if field.is_none() && with.is_none() {
-            Err(ToCreationError::MissingConfigField)
+            Err(ParamsError::MissingConfigField)
         } else {
             Ok(Self {
                 ty,
@@ -84,14 +70,4 @@ fn parse_config(assign: syn::ExprAssign, field: &mut Option<Path>, with: &mut Op
             }
         }
     }
-}
-
-pub fn get(input: &syn::Field) -> syn::Result<Attrs> {
-    let mut to_attributes = vec![];
-    for attr in &input.attrs {
-        if attr.path.is_ident("to") {
-            to_attributes.push(To{params: attr.parse_args_with(Params::parse)?, original: attr });
-        }
-    }
-    Ok(Attrs { to: to_attributes })
 }

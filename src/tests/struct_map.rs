@@ -72,3 +72,18 @@ pub fn map_field_with_generics_destination_type() {
     let person: Person<String, u8> = user.to();
     assert_eq!("Marie", person.name);
 }
+
+#[test]
+pub fn map_field_by_consuming_self() {
+    #[derive(Mapper)]
+    #[to(Person, strategy=into)]
+    struct User {
+        name: String,
+    }
+    struct Person {
+        name: String,
+    }
+    let user = User{name: "Marie".to_owned()};
+    let person: Person = user.into();
+    assert_eq!("Marie", person.name )
+}
