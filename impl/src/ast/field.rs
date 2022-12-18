@@ -1,30 +1,9 @@
-use std::fmt::Debug;
+use proc_macro2::{Ident, TokenStream};
+use syn::{Member, Type, Fields, Result, Index, TypePath};
 
-use proc_macro2::{Span, TokenStream};
+use crate::attr::{field, self, mapping_strategy::MappingStrategy};
 
-use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path, TypePath};
 
-use crate::{attr::{ self, data_type, field, mapping_strategy::MappingStrategy}};
-
-#[derive(Debug)]
-pub enum Input<'a> {
-    Struct(Struct<'a>)
-}
-
-pub struct Struct<'a> {
-    pub original: &'a DeriveInput,
-    pub attrs: data_type::Attrs<'a>,
-    pub ident: Ident,
-    pub generics: &'a Generics,
-    pub fields: Vec<Field<'a>>,
-}
-
-impl Debug for Struct<'_>{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Struct")
-       .finish()
-    }
-}
 
 #[derive(Debug)]
 pub struct Field<'a> {
@@ -34,35 +13,8 @@ pub struct Field<'a> {
     pub ty: &'a Type
 }
 
-
-impl<'a> Input<'a> {
-    pub fn from_syn(node: &'a DeriveInput) -> Result<Self> {
-        match &node.data {
-            Data::Struct(data) => Struct::from_syn(node, data).map(Input::Struct),
-            _ => Err(Error::new_spanned(node, "Only structs are supported")),
-        }
-    }
-}
-
-
-impl<'a> Struct<'a> {
-    fn from_syn(node: &'a DeriveInput, data: &'a DataStruct) -> Result<Self> {
-        let attrs = attr::data_type::get(node)?;
-        let fields = Field::multiple_from_syn(&data.fields)?;
-
-        Ok(Struct {
-            original: node,
-            attrs,
-            ident: node.ident.clone(),
-            generics: &node.generics,
-            fields,
-        })
-    }
-}
-
-
 impl<'a> Field<'a> {
-    fn multiple_from_syn(
+    pub fn multiple_from_syn(
         fields: &'a Fields
     ) -> Result<Vec<Self>> {
         fields
@@ -72,7 +24,7 @@ impl<'a> Field<'a> {
             .collect()
     }
 
-    fn from_syn(
+    pub fn from_syn(
         i: usize,
         node: &'a syn::Field
     ) -> Result<Self> {
@@ -118,4 +70,3 @@ impl<'a> Field<'a> {
         self.attrs.to.iter().find(|&to| to.params.ty.path.get_ident() == type_path.path.get_ident())
     }
 }
-

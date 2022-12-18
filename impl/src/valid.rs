@@ -3,7 +3,7 @@
 use syn::{Error, Result, spanned::Spanned};
 use thiserror::Error;
 
-use crate::{ast::{Input, Struct}};
+use crate::{ast::{Input, data_type::Struct}};
 impl Input<'_> {
     pub(crate) fn validate(&self) -> Result<()> {
         match self {

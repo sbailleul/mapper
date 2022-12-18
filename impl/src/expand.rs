@@ -6,8 +6,7 @@ use syn::DeriveInput;
 use syn::Result;
 
 use crate::ast::Input;
-use crate::ast::Struct;
-use crate::attr::mapping_strategy::MappingStrategy;
+use crate::{ast::data_type::Struct, attr::mapping_strategy::MappingStrategy};
 
 pub fn derive(node: &DeriveInput) -> Result<TokenStream> {
     let input = Input::from_syn(node)?;
