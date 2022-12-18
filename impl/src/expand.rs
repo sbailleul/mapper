@@ -27,6 +27,7 @@ fn impl_struct(input: Struct) -> TokenStream {
             let fields = input
                 .fields
                 .iter()
+                .filter(|field| !field.is_excluded(&dest))
                 .map(|field| {
                     let destination_field = &field.get_destination_field_by_path(&dest);
                     let value = field.get_source_value_by_path(&dest, strategy.borrow());

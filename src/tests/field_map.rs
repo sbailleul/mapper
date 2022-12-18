@@ -56,7 +56,7 @@ pub fn map_generic_destination_type_with_func_should_works(){
     #[derive(Mapper)]
     #[to(Person::<String>)]
     struct User {
-        #[to(Person::<u16>, with=map_u16_to_string)]
+        #[to(Person::<String>, with=map_u16_to_string)]
         age: u16,
     }
     struct Person<T> {
@@ -65,5 +65,22 @@ pub fn map_generic_destination_type_with_func_should_works(){
     let user = User { age: 123 };
     let person: Person<String> = user.to();
     assert_eq!("123", person.age);
+}
+
+#[test]
+pub fn exclude_field_should_works(){
+    #[derive(Mapper)]
+    #[to(Person)]
+    struct User {
+        age: u16,
+        #[to(Person, exclude)]
+        name: String
+    }
+    struct Person {
+        age: u16,
+    }
+    let user = User { age: 123, name: "Marie".to_owned() };
+    let person: Person = user.to();
+    assert_eq!(123, person.age);
 }
 

@@ -94,6 +94,14 @@ impl<'a> Field<'a> {
         }
     }
 
+    pub fn is_excluded(&self, path: &TypePath) -> bool{
+        if let Some(field) = self.get_to_by_type(path){
+            field.params.exclude
+        }else{
+            false
+        }
+    }
+
     pub fn get_source_value_by_path(&self, path: &TypePath, strategy: &MappingStrategy) -> TokenStream{
         let original = &self.member;
         if let Some(with) = self.get_to_by_type(path).and_then(|to| to.params.with.as_ref()){
