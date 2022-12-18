@@ -84,3 +84,28 @@ pub fn exclude_field_should_works(){
     assert_eq!(123, person.age);
 }
 
+#[test]
+pub fn use_with_strategy_should_works(){
+    fn map_into(val: String) -> String{
+        val
+    }
+    fn map_mapper(val: &str) -> String{
+        val.to_string()
+    }
+    #[derive(Mapper)]
+    #[to(Person, strategy=into, strategy=mapper)]
+    struct User {
+        #[to(Person, with(into)=map_into, with(mapper)=map_mapper)]
+        name: String
+    }
+    struct Person {
+        name: String,
+    }
+    let user = User {  name: "Marie".to_owned() };
+    let person_mapper: Person = user.to();
+    let person_into: Person = user.into();
+    
+    assert_eq!("Marie", person_into.name);
+    assert_eq!("Marie", person_mapper.name);
+}
+

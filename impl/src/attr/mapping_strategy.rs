@@ -1,12 +1,21 @@
-use std::{collections::HashSet, rc::Rc};
+use std::{collections::HashSet, fmt::Display, rc::Rc};
 
 use syn::{spanned::Spanned, Error, Path, Result as SynResult};
 use thiserror::Error;
 
-#[derive(PartialEq, Eq, Debug, Hash)]
+#[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub enum MappingStrategy {
     Into,
     Mapper,
+}
+
+impl Display for MappingStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MappingStrategy::Into => write!(f, "into"),
+            MappingStrategy::Mapper => write!(f, "mapper"),
+        }
+    }
 }
 
 #[derive(Error, Debug)]

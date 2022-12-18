@@ -1,15 +1,11 @@
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
-use std::hash::Hash;
 use std::rc::Rc;
 use std::vec;
 
 use syn::parse::Parse;
-use syn::punctuated::Punctuated;
-
-use syn::spanned::Spanned;
-use syn::{Attribute, Error, Generics, Pat, Result, Token, Type, TypePath};
-use syn::{DeriveInput, Expr, Path};
+use syn::{Attribute, Error, Result, TypePath};
+use syn::{DeriveInput};
 
 use self::params::Params;
 
@@ -49,9 +45,9 @@ impl<'a> AggregatedTo<'a> {
             to: vec![]
         }
     }
-    pub fn destinations(&self) -> HashSet<Rc< TypePath>>{
-        self.destinations_by_strategy.values().into_iter().flatten().map(|dest| dest.clone()).collect()
-    }
+    // pub fn destinations(&self) -> HashSet<Rc< TypePath>>{
+    //     self.destinations_by_strategy.values().into_iter().flatten().map(|dest| dest.clone()).collect()
+    // }
 }
 pub fn get(node: &DeriveInput) -> Result<Attrs> {
     let mut aggregated_to = AggregatedTo::new();

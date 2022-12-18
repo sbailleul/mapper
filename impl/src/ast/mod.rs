@@ -1,8 +1,7 @@
-use std::fmt::Debug;
+use std::{fmt::Debug};
+use syn::{DeriveInput, Result, Data, Error};
 
-use proc_macro2::{Span, TokenStream};
 
-use syn::{DeriveInput, Ident, Generics, Member, Type, Result, Data, DataStruct, Error, Fields, Index, spanned::Spanned, Path, TypePath};
 
 use self::data_type::Struct;
 
@@ -35,10 +34,28 @@ impl<'a> Input<'a> {
 
 
 
+// #[derive(Hash, PartialEq, Eq, Debug)]
 // pub struct MappingField{
-//     pub with: 
+//     pub ty: TypePath,
+//     pub member: Member,
+//     pub field: Option<Path>,
+//     pub with: Option<Path>
 // }
 // pub struct MappingTree{
+//     pub ident: Ident,
 //     pub destination: TypePath,
-//     pub 
+//     pub strategy: MappingStrategy,
+//     pub mapping_fields: HashSet<MappingField>
 // }
+
+// impl TryFrom<Struct<'_>> for Vec<MappingTree>{
+//     type Error = syn::Error;
+
+//     fn try_from(value: Struct<'_>) -> Result<Self> {
+//         let mapping_trees = vec![];
+        
+
+//     }
+// }
+
+

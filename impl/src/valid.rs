@@ -19,16 +19,16 @@ pub enum StructError{
 }
 impl Struct<'_> {
     fn validate(&self) -> Result<()> {
-        for field in &self.fields{
-            let non_referenced_type =  field
-            .attrs
-            .to
-            .iter()
-            .find(|&to| self.attrs.to.destinations().iter().all(|dest| to.params.ty.path.get_ident() != dest.path.get_ident())); 
-            if let Some(non_referenced_type) = non_referenced_type{
-                return Err(Error::new(self.original.span(), StructError::DestinationNotFound(non_referenced_type.params.ty.path.get_ident().unwrap().to_string())))
-            }
-        }
+        // for field in &self.fields{
+        //     let non_referenced_type =  field
+        //     .attrs
+        //     .to
+        //     .iter()
+        //     .find(|&to| self.attrs.to.destinations().iter().all(|dest| to.params.ty.path.get_ident() != dest.path.get_ident())); 
+        //     if let Some(non_referenced_type) = non_referenced_type{
+        //         return Err(Error::new(self.original.span(), StructError::DestinationNotFound(non_referenced_type.params.ty.path.get_ident().unwrap().to_string())))
+        //     }
+        // }
         Ok(())
     }
 }

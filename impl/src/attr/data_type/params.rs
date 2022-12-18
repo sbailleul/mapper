@@ -1,12 +1,10 @@
 use std::{collections::HashSet, rc::Rc};
 
-use quote::ToTokens;
+
 use syn::{
-    buffer::Cursor,
-    parse::{Parse, ParseStream, Peek},
+    parse::{Parse},
     punctuated::Punctuated,
-    token::{CustomToken, Token},
-    Error, Expr, Result, Token, Type, TypePath, spanned::Spanned,
+    Error, Expr, Result, Token, Type, TypePath,
 };
 
 use crate::{

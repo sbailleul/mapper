@@ -56,8 +56,11 @@ impl<'a> Field<'a> {
 
     pub fn get_source_value_by_path(&self, path: &TypePath, strategy: &MappingStrategy) -> TokenStream{
         let original = &self.member;
-        if let Some(with) = self.get_to_by_type(path).and_then(|to| to.params.with.as_ref()){
-            quote::quote!{#with(&self.#original)}
+        if let Some(with) = self.get_to_by_type(path).and_then(|to| to.params.get_with_by_strategy(strategy)){
+            match strategy{
+                MappingStrategy::Into => quote::quote!(#with(self.#original)),
+                MappingStrategy::Mapper => quote::quote!{#with(&self.#original)},
+            }
         }else{
             match strategy{
                 MappingStrategy::Into => quote::quote!(self.#original),
