@@ -70,12 +70,8 @@ fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<Rc<MappingStra
     if let Expr::Path(config) = *assign.left {
         if config.path.is_ident("strategy") {
             if let Expr::Path(strategy_expr) = *assign.right {
-                match parse_strategy(&strategy_expr.path, strategies) {
-                    Ok(strategy) => {
-                        strategies.insert(Rc::new(strategy));
-                    }
-                    Err(err) => return Err(Error::new_spanned(strategy_expr, err.to_string())),
-                }
+                let strategy =  parse_strategy(&strategy_expr.path, strategies)?;
+                strategies.insert(Rc::new(strategy));
             }
         }
     }

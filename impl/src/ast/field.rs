@@ -70,6 +70,6 @@ impl<'a> Field<'a> {
     }
 
     fn get_to_by_type(&self, type_path: &TypePath) -> Option<&field::To> {
-        self.attrs.to.iter().find(|&to| to.params.ty.path.get_ident() == type_path.path.get_ident())
+        self.attrs.to.iter().find(|&to| to.params.destination.path.get_ident() == type_path.path.get_ident())
     }
 }

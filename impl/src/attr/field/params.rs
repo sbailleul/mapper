@@ -1,11 +1,13 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{borrow::Borrow, collections::HashSet, hash::Hash, rc::Rc};
 
+use proc_macro2::Span;
 use syn::{
-    parse::Parse, punctuated::Punctuated, Error, Expr, ExprPath, Path, Token, Type, TypePath, token::Comma,
+    parse::Parse, punctuated::Punctuated, token::Comma, Error, Expr, ExprPath, Path, Token, Type,
+    TypePath, spanned::Spanned,
 };
 use thiserror::Error;
 
-use crate::attr::mapping_strategy::MappingStrategy;
+use crate::attr::mapping_strategy::{parse_strategy, MappingStrategy};
 
 #[derive(Error, Debug)]
 pub enum ParamsError {
@@ -13,18 +15,24 @@ pub enum ParamsError {
     MissingConfigField,
     #[error("excluded attribute couldn't have other configurations fields")]
     ExcludedField,
+    #[error("strategy {0} isn't set in strategy config")]
+    UndefinedStrategy(MappingStrategy),
 }
 #[derive(Clone, Debug)]
 pub struct Params {
-    pub ty: TypePath,
+    pub destination: TypePath,
     pub field: Option<Path>,
     pub with: HashSet<With>,
     pub exclude: bool,
+    pub strategies: HashSet<Rc<MappingStrategy>>,
 }
 
 impl Params {
-    pub fn get_with_by_strategy(&self, strategy: &MappingStrategy) -> Option<&Path>{
-        self.with.iter().find(|&w| &w.strategy == strategy).map(|w| &w.path)
+    pub fn get_with_by_strategy(&self, strategy: &MappingStrategy) -> Option<&Path> {
+        self.with
+            .iter()
+            .find(|&w| &w.strategy == strategy)
+            .map(|w| &w.path)
     }
 }
 
@@ -32,6 +40,11 @@ impl Params {
 pub struct With {
     pub path: Path,
     pub strategy: MappingStrategy,
+}
+impl Spanned for With{
+    fn span(&self) -> Span {
+        return self.path.span()
+    }
 }
 
 impl Hash for With {
@@ -61,17 +74,24 @@ impl Params {
         field: Option<Path>,
         with: HashSet<With>,
         exclude: bool,
+        strategies: HashSet<Rc<MappingStrategy>>,
     ) -> Result<Self, ParamsError> {
+        let undefined_strategy = with.iter().find(|&w| !strategies.contains(&w.strategy));
         if field.is_none() && with.is_empty() && !exclude {
             Err(ParamsError::MissingConfigField)
         } else if exclude && (field.is_some() || !with.is_empty()) {
             Err(ParamsError::ExcludedField)
+        } else if undefined_strategy.is_some() {
+            Err(ParamsError::UndefinedStrategy(
+                undefined_strategy.unwrap().strategy,
+            ))
         } else {
             Ok(Self {
-                ty,
+                destination: ty,
                 field,
                 with,
                 exclude,
+                strategies,
             })
         }
     }
@@ -82,6 +102,7 @@ impl Parse for Params {
         let mut field: Option<Path> = None;
         let mut with = HashSet::new();
         let mut exclude: Option<bool> = None;
+        let mut strategies = HashSet::new();
 
         if let Ok(Type::Path(ty)) = input.parse::<Type>() {
             if !input.is_empty() {
@@ -94,7 +115,7 @@ impl Parse for Params {
             for arg in args {
                 match arg {
                     Expr::Assign(assign) => {
-                        parse_config(assign, &mut field, &mut with);
+                        parse_config(assign, &mut field, &mut with, &mut strategies);
                     }
                     Expr::Path(path) => {
                         parse_flag(path, &mut exclude)?;
@@ -102,7 +123,7 @@ impl Parse for Params {
                     _ => (),
                 }
             }
-            Params::new(ty, field, with, exclude.unwrap_or_default())
+            Params::new(ty, field, with, exclude.unwrap_or_default(), strategies)
                 .map_err(|err| syn::Error::new(input.span(), err))
         } else {
             Err(Error::new(
@@ -117,6 +138,7 @@ fn parse_config(
     assign: syn::ExprAssign,
     field: &mut Option<Path>,
     with: &mut HashSet<With>,
+    strategies: &mut HashSet<Rc<MappingStrategy>>,
 ) -> syn::Result<()> {
     match *assign.left {
         Expr::Path(config) => {
@@ -126,6 +148,9 @@ fn parse_config(
                 }
             } else if config.path.is_ident("with") {
                 parse_with_value(&assign.right, with, None)?;
+            } else if config.path.is_ident("strategy") {
+                let strategy = parse_strategy(&config.path, strategies)?;
+                strategies.insert(Rc::new(strategy));
             }
         }
         Expr::Call(config) => {
@@ -169,8 +194,12 @@ fn parse_with_strategy(
     }
 }
 
-fn parse_with_value(value: &syn::Expr, with: &mut HashSet<With>, strategy: Option<MappingStrategy>) -> syn::Result<()> {
-    if let Expr::Path(with_fn) = value  {
+fn parse_with_value(
+    value: &syn::Expr,
+    with: &mut HashSet<With>,
+    strategy: Option<MappingStrategy>,
+) -> syn::Result<()> {
+    if let Expr::Path(with_fn) = value {
         let new_with = With::new(with_fn.path.clone(), strategy);
         insert_with(with, new_with, &value)
     } else {

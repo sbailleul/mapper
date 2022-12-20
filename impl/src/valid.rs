@@ -19,6 +19,19 @@ pub enum StructError{
 }
 impl Struct<'_> {
     fn validate(&self) -> Result<()> {
+        for field in &self.fields {
+            for to in &field.attrs.to {
+                for strategy in &to.params.strategies{
+                    if let Some(destinations) = self.attrs.to.destinations_by_strategy.get(&*strategy){
+                        if destinations.contains(&to.params.destination){
+                            return Err(Error::new_spanned(to.original, "To attribute already specify strategy"))
+                        }
+                    }else{
+
+                    }
+                }
+            }
+        }
         // for field in &self.fields{
         //     let non_referenced_type =  field
         //     .attrs
