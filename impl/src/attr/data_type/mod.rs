@@ -34,7 +34,7 @@ impl<'a> To<'a> {
 
 #[derive(Debug)]
 pub struct AggregatedTo<'a> {
-    pub destinations_by_strategy: HashMap<Rc<MappingStrategy>, HashSet<Rc<TypePath>>>,
+    pub destinations_by_strategy: HashMap<MappingStrategy, HashSet<TypePath>>,
     pub to: Vec<To<'a>>
 }
 

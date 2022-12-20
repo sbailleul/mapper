@@ -24,7 +24,7 @@ pub struct Params {
     pub field: Option<Path>,
     pub with: HashSet<With>,
     pub exclude: bool,
-    pub strategies: HashSet<Rc<MappingStrategy>>,
+    pub strategies: HashSet<MappingStrategy>,
 }
 
 impl Params {
@@ -74,7 +74,7 @@ impl Params {
         field: Option<Path>,
         with: HashSet<With>,
         exclude: bool,
-        strategies: HashSet<Rc<MappingStrategy>>,
+        strategies: HashSet<MappingStrategy>,
     ) -> Result<Self, ParamsError> {
         let undefined_strategy = with.iter().find(|&w| !strategies.contains(&w.strategy));
         if field.is_none() && with.is_empty() && !exclude {
@@ -83,7 +83,7 @@ impl Params {
             Err(ParamsError::ExcludedField)
         } else if undefined_strategy.is_some() {
             Err(ParamsError::UndefinedStrategy(
-                undefined_strategy.unwrap().strategy,
+                undefined_strategy.unwrap().strategy.clone(),
             ))
         } else {
             Ok(Self {
@@ -138,7 +138,7 @@ fn parse_config(
     assign: syn::ExprAssign,
     field: &mut Option<Path>,
     with: &mut HashSet<With>,
-    strategies: &mut HashSet<Rc<MappingStrategy>>,
+    strategies: &mut HashSet<MappingStrategy>,
 ) -> syn::Result<()> {
     match *assign.left {
         Expr::Path(config) => {
@@ -150,7 +150,7 @@ fn parse_config(
                 parse_with_value(&assign.right, with, None)?;
             } else if config.path.is_ident("strategy") {
                 let strategy = parse_strategy(&config.path, strategies)?;
-                strategies.insert(Rc::new(strategy));
+                strategies.insert(strategy);
             }
         }
         Expr::Call(config) => {

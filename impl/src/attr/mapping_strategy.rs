@@ -45,7 +45,7 @@ pub const MAX_STRATEGIES_BY_ATTRIBUTE: usize = 2;
 
 pub fn parse_strategy(
     path: &Path,
-    strategies: &HashSet<Rc<MappingStrategy>>,
+    strategies: &HashSet<MappingStrategy>,
 ) -> SynResult<MappingStrategy> {
     if strategies.len() >= MAX_STRATEGIES_BY_ATTRIBUTE {
         Err(Error::new(path.span(), "Only two strategies are available"))

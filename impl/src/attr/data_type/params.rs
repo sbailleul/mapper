@@ -14,14 +14,14 @@ use crate::{
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Params {
-    pub destinations: HashSet<Rc<TypePath>>,
-    pub strategies: HashSet<Rc<MappingStrategy>>,
+    pub destinations: HashSet<TypePath>,
+    pub strategies: HashSet<MappingStrategy>,
 }
 
 impl  Params {
-    fn new(destinations: HashSet<Rc<TypePath>>, mut strategies: HashSet<Rc<MappingStrategy>>) -> Self {
+    fn new(destinations: HashSet<TypePath>,  mut strategies: HashSet<MappingStrategy>) -> Self {
         if strategies.is_empty() {
-            strategies.insert(Rc::new(MappingStrategy::default()));
+            strategies.insert(MappingStrategy::default());
         }
         Params {
             destinations,
@@ -33,7 +33,7 @@ impl  Params {
 impl  Parse for Params {
     fn parse(input: syn::parse::ParseStream) -> Result<Self> {
         let mut destinations = HashSet::new();
-        let mut strategies: HashSet<Rc<MappingStrategy>> =
+        let mut strategies: HashSet<MappingStrategy> =
             HashSet::with_capacity(MAX_STRATEGIES_BY_ATTRIBUTE);
 
         let args = Punctuated::<Type, Token![,]>::parse_separated_nonempty_until(input, |p| {
@@ -44,7 +44,7 @@ impl  Parse for Params {
         for arg in args {
             match arg {
                 Type::Path(ty) => {
-                    destinations.insert(Rc::new(ty));
+                    destinations.insert(ty);
                 }
                 _ => (),
             }
@@ -66,12 +66,12 @@ impl  Parse for Params {
     }
 }
 
-fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<Rc<MappingStrategy>>) -> Result<()> {
+fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<MappingStrategy>) -> Result<()> {
     if let Expr::Path(config) = *assign.left {
         if config.path.is_ident("strategy") {
             if let Expr::Path(strategy_expr) = *assign.right {
                 let strategy =  parse_strategy(&strategy_expr.path, strategies)?;
-                strategies.insert(Rc::new(strategy));
+                strategies.insert(strategy);
             }
         }
     }
