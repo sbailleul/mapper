@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
-use std::rc::Rc;
+
 use std::vec;
 
 use syn::parse::Parse;
@@ -47,7 +47,7 @@ impl<'a> AggregatedTo<'a> {
         }
     }
     pub fn destinations(&self) -> HashSet<TypePath>{
-        self.destinations_by_strategy.values().into_iter().flatten().map(|dest| dest.clone()).collect()
+        self.destinations_by_strategy.values().into_iter().flatten().cloned().collect()
     }
 }
 pub fn get(node: &DeriveInput) -> Result<Attrs> {
@@ -65,7 +65,10 @@ pub fn get(node: &DeriveInput) -> Result<Attrs> {
                 if common_destinations.clone().count() > 0{
                     return Err(
                         Error::new_spanned(attr, 
-                            format!("You cannot specify multiple time same destination for a given strategy, strategy: {:?}, destinations : {:?}",strategy, common_destinations)
+                            format!("You cannot specify multiple time same destination for a given strategy, strategy: {}, destinations : {}"
+                            ,strategy
+                            ,common_destinations.map(|dest|dest.path.get_ident().unwrap().to_string()).collect::<Vec<String>>().join(",")
+                    )
                         ))
                 }
                 registered_destinations.extend(to_destinations);

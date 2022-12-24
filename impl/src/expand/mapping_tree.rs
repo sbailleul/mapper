@@ -1,4 +1,4 @@
-use quote::{TokenStreamExt, ToTokens};
+use quote::{ToTokens};
 
 use crate::{ast::mapping_tree::MappingTree, attr::mapping_strategy::MappingStrategy};
 

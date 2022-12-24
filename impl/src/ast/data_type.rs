@@ -7,7 +7,7 @@ use super::field::Field;
 
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Struct<'a> {
     pub original: &'a DeriveInput,
     pub attrs: data_type::Attrs<'a>,

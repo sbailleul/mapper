@@ -1,8 +1,8 @@
-use std::{borrow::Borrow, collections::HashSet, hash::Hash, rc::Rc};
+use std::{collections::HashSet};
 
-use proc_macro2::Span;
+
 use syn::{
-    parse::Parse, punctuated::Punctuated, spanned::Spanned, token::Comma, Error, Expr, ExprPath,
+    parse::Parse, punctuated::Punctuated, token::Comma, Error, Expr, ExprPath,
     Path, Token, Type, TypePath,
 };
 use thiserror::Error;
@@ -82,7 +82,7 @@ impl Parse for Params {
             for arg in args {
                 match arg {
                     Expr::Assign(assign) => {
-                        parse_config(assign, &mut field, &mut with, &mut strategies);
+                        parse_config(assign, &mut field, &mut with, &mut strategies)?;
                     }
                     Expr::Path(path) => {
                         parse_flag(path, &mut exclude)?;
@@ -142,21 +142,19 @@ fn parse_with_strategy(
         if args.len() != 1 {
             Err(Error::new_spanned(
                 args,
-                "Cannot specify more than on strategy by with config",
+                "Cannot specify more than on strategy (into or mapper) by with config",
             ))
+        } else if let Expr::Path(strategy) = &args[0] {
+            let strategy = MappingStrategy::try_from(
+                strategy.path.get_ident().unwrap().to_string().as_ref(),
+            )
+            .map_err(|e| Error::new_spanned(strategy, e))?;
+            parse_with_value(value, with, Some(strategy))
         } else {
-            if let Expr::Path(strategy) = &args[0] {
-                let strategy = MappingStrategy::try_from(
-                    strategy.path.get_ident().unwrap().to_string().as_ref(),
-                )
-                .map_err(|e| Error::new_spanned(strategy, e))?;
-                parse_with_value(&value, with, Some(strategy))
-            } else {
-                Err(Error::new_spanned(
-                    &args[0],
-                    "With strategy should be an expression path",
-                ))
-            }
+            Err(Error::new_spanned(
+                &args[0],
+                "With strategy should be an expression path",
+            ))
         }
     } else {
         Ok(())
@@ -170,7 +168,7 @@ fn parse_with_value(
 ) -> syn::Result<()> {
     if let Expr::Path(with_fn) = value {
         let new_with = SpannedItem::new(with_fn.path.clone(), strategy.unwrap_or_default());
-        insert_with(with, new_with, &value)
+        insert_with(with, new_with, value)
     } else {
         Err(Error::new_spanned(
             value,
@@ -205,7 +203,7 @@ fn parse_flag(
         } else {
             return Err(Error::new_spanned(
                 expr_path,
-                "Cannot specify multiple time exclude flag.",
+                "Cannot specify multiple time exclude flag",
             ));
         }
     }

@@ -59,8 +59,7 @@ impl MappingTree {
         let fields = self
             .mapping_fields
             .iter()
-            .filter(|&field| &field.member == member)
-            .map(|mapping_field| mapping_field.clone())
+            .filter(|&field| &field.member == member).cloned()
             .collect::<Vec<MappingField>>();
         for field in fields {
             self.mapping_fields.remove(&field);

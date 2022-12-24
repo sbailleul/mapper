@@ -1,9 +1,9 @@
-use proc_macro2::{Ident, TokenStream};
-use std::{collections::HashSet, fmt::Debug, hash::Hash, ops::Deref, rc::Rc};
-use syn::{Data, DeriveInput, Error, Member, Path, Result, Type, TypePath};
+
+use std::{collections::HashSet, fmt::Debug};
+use syn::{Data, DeriveInput, Error, Path, Result};
 
 use crate::attr::{
-    data_type::AggregatedTo, field::To, mapping_strategy::MappingStrategy,
+    field::To, mapping_strategy::MappingStrategy,
     spanned_item::SpannedItem,
 };
 
@@ -19,17 +19,12 @@ pub enum Input<'a> {
     Struct(Struct<'a>),
 }
 
-impl Debug for Struct<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Struct").finish()
-    }
-}
 
 impl<'a> Input<'a> {
     pub fn from_syn(node: &'a DeriveInput) -> Result<Self> {
         match &node.data {
             Data::Struct(data) => Struct::from_syn(node, data).map(Input::Struct),
-            _ => Err(Error::new_spanned(node, "Only structs are supported")),
+            _ => Err(Error::new_spanned(node, "Only c style structs are supported")),
         }
     }
 }

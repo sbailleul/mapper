@@ -1,4 +1,8 @@
-use syn::{parse::{Parse, ParseStream},Result, punctuated::Punctuated, token::Token};
+use std::fmt::Display;
+
+use syn::{parse::{Parse, ParseStream},Result, punctuated::Punctuated, token::Token, TypePath};
+
+
 
 pub trait PunctuatedExtensions<T: Parse, P: Token + Parse> {
     fn parse_separated_nonempty_until(input: ParseStream, stop_predicate: fn(ParseStream) -> bool)-> Result<Self> where Self:Sized;
@@ -16,8 +20,8 @@ impl<T: Parse, P: Token+Parse> PunctuatedExtensions<T, P> for Punctuated<T, P> {
             if !P::peek(input.cursor()) {
                 break;
             }
-            let punct = input.parse()?;
-            punctuated.push_punct(punct);
+            let punctuation = input.parse()?;
+            punctuated.push_punct(punctuation);
         }
         Ok(punctuated)
     }

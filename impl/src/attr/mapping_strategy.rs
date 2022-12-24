@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fmt::Display, rc::Rc};
+use std::{collections::HashSet, fmt::Display};
 
 use syn::{spanned::Spanned, Error, Path, Result as SynResult};
 use thiserror::Error;
@@ -48,13 +48,13 @@ pub fn parse_strategy(
     strategies: &HashSet<SpannedItem<Path, MappingStrategy>>,
 ) -> SynResult<SpannedItem<Path, MappingStrategy>> {
     if strategies.len() >= MAX_STRATEGIES_BY_ATTRIBUTE {
-        Err(Error::new(path.span(), "Only two strategies are available"))
+        Err(Error::new_spanned(path, "Only two strategies are available"))
     } else {
         let ident = path
             .get_ident()
-            .ok_or(Error::new(path.span(), "Invalid strategy"))?;
+            .ok_or(Error::new_spanned(path, "Invalid strategy"))?;
         let strategy = MappingStrategy::try_from(ident.to_string().as_ref())
-            .map_err(|e| Error::new(path.span(), e))?;
+            .map_err(|e| Error::new_spanned(path, e))?;
         Ok(SpannedItem(Some(path.clone()), strategy))
     }
 }

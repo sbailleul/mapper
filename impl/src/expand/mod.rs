@@ -1,17 +1,17 @@
 pub mod mapping_tree;
 pub mod mapping_field;
 
-use std::borrow::Borrow;
+
 use std::collections::HashSet;
 
 use proc_macro2::TokenStream;
-use quote::TokenStreamExt;
+
 use syn::DeriveInput;
 use syn::Result;
 
 use crate::ast::Input;
 use crate::ast::mapping_tree::MappingTree;
-use crate::{ast::data_type::Struct, attr::mapping_strategy::MappingStrategy};
+use crate::{ast::data_type::Struct};
 
 
 
