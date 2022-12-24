@@ -2,17 +2,18 @@ use std::{borrow::Borrow, collections::HashSet, hash::Hash, rc::Rc};
 
 use proc_macro2::Span;
 use syn::{
-    parse::Parse, punctuated::Punctuated, token::Comma, Error, Expr, ExprPath, Path, Token, Type,
-    TypePath, spanned::Spanned,
+    parse::Parse, punctuated::Punctuated, spanned::Spanned, token::Comma, Error, Expr, ExprPath,
+    Path, Token, Type, TypePath,
 };
 use thiserror::Error;
 
-use crate::attr::mapping_strategy::{parse_strategy, MappingStrategy};
+use crate::attr::{
+    mapping_strategy::{parse_strategy, MappingStrategy},
+    spanned_item::SpannedItem,
+};
 
 #[derive(Error, Debug)]
 pub enum ParamsError {
-    #[error("to attribute should be used with at least field or with")]
-    MissingConfigField,
     #[error("excluded attribute couldn't have other configurations fields")]
     ExcludedField,
     #[error("strategy {0} isn't set in strategy config")]
@@ -22,49 +23,15 @@ pub enum ParamsError {
 pub struct Params {
     pub destination: TypePath,
     pub field: Option<Path>,
-    pub with: HashSet<With>,
-    pub exclude: bool,
-    pub strategies: HashSet<MappingStrategy>,
+    pub with: HashSet<SpannedItem<Path, MappingStrategy>>,
+    pub exclude: SpannedItem<Path, bool>,
+    pub strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
 }
 
 impl Params {
-    pub fn get_with_by_strategy(&self, strategy: &MappingStrategy) -> Option<&Path> {
-        self.with
-            .iter()
-            .find(|&w| &w.strategy == strategy)
-            .map(|w| &w.path)
-    }
-}
-
-#[derive(Eq, Debug, Clone)]
-pub struct With {
-    pub path: Path,
-    pub strategy: MappingStrategy,
-}
-impl Spanned for With{
-    fn span(&self) -> Span {
-        return self.path.span()
-    }
-}
-
-impl Hash for With {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.strategy.hash(state);
-    }
-}
-
-impl PartialEq for With {
-    fn eq(&self, other: &Self) -> bool {
-        self.strategy == other.strategy
-    }
-}
-
-impl With {
-    pub fn new(path: Path, strategy: Option<MappingStrategy>) -> Self {
-        With {
-            path,
-            strategy: strategy.unwrap_or_default(),
-        }
+    pub fn get_with_by_strategy(&self, strategy: &MappingStrategy) -> Option<Path> {
+        let with = self.with.iter().find(|&w| &w.1 == strategy);
+        Option::flatten(with.map(|w| w.0.clone()))
     }
 }
 
@@ -72,18 +39,16 @@ impl Params {
     pub fn new(
         ty: TypePath,
         field: Option<Path>,
-        with: HashSet<With>,
-        exclude: bool,
-        strategies: HashSet<MappingStrategy>,
+        with: HashSet<SpannedItem<Path, MappingStrategy>>,
+        exclude: SpannedItem<Path, bool>,
+        strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
     ) -> Result<Self, ParamsError> {
-        let undefined_strategy = with.iter().find(|&w| !strategies.contains(&w.strategy));
-        if field.is_none() && with.is_empty() && !exclude {
-            Err(ParamsError::MissingConfigField)
-        } else if exclude && (field.is_some() || !with.is_empty()) {
+        let undefined_strategy = with.iter().find(|&w| !strategies.contains(w));
+         if exclude.1 && (field.is_some() || !with.is_empty()) {
             Err(ParamsError::ExcludedField)
-        } else if undefined_strategy.is_some() {
+        } else if undefined_strategy.is_some() && !strategies.is_empty() {
             Err(ParamsError::UndefinedStrategy(
-                undefined_strategy.unwrap().strategy.clone(),
+                undefined_strategy.unwrap().1.clone(),
             ))
         } else {
             Ok(Self {
@@ -101,7 +66,7 @@ impl Parse for Params {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut field: Option<Path> = None;
         let mut with = HashSet::new();
-        let mut exclude: Option<bool> = None;
+        let mut exclude = None;
         let mut strategies = HashSet::new();
 
         if let Ok(Type::Path(ty)) = input.parse::<Type>() {
@@ -137,8 +102,8 @@ impl Parse for Params {
 fn parse_config(
     assign: syn::ExprAssign,
     field: &mut Option<Path>,
-    with: &mut HashSet<With>,
-    strategies: &mut HashSet<MappingStrategy>,
+    with: &mut HashSet<SpannedItem<Path, MappingStrategy>>,
+    strategies: &mut HashSet<SpannedItem<Path, MappingStrategy>>,
 ) -> syn::Result<()> {
     match *assign.left {
         Expr::Path(config) => {
@@ -149,8 +114,10 @@ fn parse_config(
             } else if config.path.is_ident("with") {
                 parse_with_value(&assign.right, with, None)?;
             } else if config.path.is_ident("strategy") {
-                let strategy = parse_strategy(&config.path, strategies)?;
-                strategies.insert(strategy);
+                if let Expr::Path(strategy_expr) = *assign.right {
+                    let strategy =  parse_strategy(&strategy_expr.path, strategies)?;
+                    strategies.insert(strategy);
+                }
             }
         }
         Expr::Call(config) => {
@@ -167,7 +134,7 @@ fn parse_with_strategy(
     func: ExprPath,
     args: &Punctuated<Expr, Comma>,
     value: &syn::Expr,
-    with: &mut HashSet<With>,
+    with: &mut HashSet<SpannedItem<Path, MappingStrategy>>,
 ) -> syn::Result<()> {
     if func.path.is_ident("with") {
         if args.len() != 1 {
@@ -196,11 +163,11 @@ fn parse_with_strategy(
 
 fn parse_with_value(
     value: &syn::Expr,
-    with: &mut HashSet<With>,
+    with: &mut HashSet<SpannedItem<Path, MappingStrategy>>,
     strategy: Option<MappingStrategy>,
 ) -> syn::Result<()> {
     if let Expr::Path(with_fn) = value {
-        let new_with = With::new(with_fn.path.clone(), strategy);
+        let new_with = SpannedItem::new(with_fn.path.clone(), strategy.unwrap_or_default());
         insert_with(with, new_with, &value)
     } else {
         Err(Error::new_spanned(
@@ -210,14 +177,15 @@ fn parse_with_value(
     }
 }
 
-fn insert_with(with: &mut HashSet<With>, new_with: With, with_fn: &Expr) -> syn::Result<()> {
+fn insert_with(
+    with: &mut HashSet<SpannedItem<Path, MappingStrategy>>,
+    new_with: SpannedItem<Path, MappingStrategy>,
+    with_fn: &Expr,
+) -> syn::Result<()> {
     if with.contains(&new_with) {
         Err(Error::new_spanned(
             with_fn,
-            format!(
-                "Cannot add multiple with from same strategy {}",
-                new_with.strategy
-            ),
+            format!("Cannot add multiple with from same strategy {}", new_with.1),
         ))
     } else {
         with.insert(new_with);
@@ -225,13 +193,16 @@ fn insert_with(with: &mut HashSet<With>, new_with: With, with_fn: &Expr) -> syn:
     }
 }
 
-fn parse_flag(path: ExprPath, exclude: &mut Option<bool>) -> syn::Result<()> {
-    if path.path.is_ident("exclude") {
+fn parse_flag(
+    expr_path: ExprPath,
+    exclude: &mut Option<SpannedItem<Path, bool>>,
+) -> syn::Result<()> {
+    if expr_path.path.is_ident("exclude") {
         if exclude.is_none() {
-            *exclude = Some(true);
+            *exclude = Some(SpannedItem::new(expr_path.path, true));
         } else {
             return Err(Error::new_spanned(
-                path,
+                expr_path,
                 "Cannot specify multiple time exclude flag.",
             ));
         }

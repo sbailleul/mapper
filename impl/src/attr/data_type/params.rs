@@ -4,24 +4,24 @@ use std::{collections::HashSet, rc::Rc};
 use syn::{
     parse::{Parse},
     punctuated::Punctuated,
-    Error, Expr, Result, Token, Type, TypePath,
+    Error, Expr, Result, Token, Type, TypePath, Path, spanned::Spanned,
 };
 
 use crate::{
-    attr::mapping_strategy::{parse_strategy, MappingStrategy, MAX_STRATEGIES_BY_ATTRIBUTE},
+    attr::{mapping_strategy::{parse_strategy, MappingStrategy, MAX_STRATEGIES_BY_ATTRIBUTE}, spanned_item::SpannedItem},
     common::punctuated_extensions::PunctuatedExtensions,
 };
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Params {
     pub destinations: HashSet<TypePath>,
-    pub strategies: HashSet<MappingStrategy>,
+    pub strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
 }
 
 impl  Params {
-    fn new(destinations: HashSet<TypePath>,  mut strategies: HashSet<MappingStrategy>) -> Self {
+    fn new(destinations: HashSet<TypePath>,  mut strategies: HashSet<SpannedItem<Path, MappingStrategy>>) -> Self {
         if strategies.is_empty() {
-            strategies.insert(MappingStrategy::default());
+            strategies.insert(SpannedItem(None, MappingStrategy::default()));
         }
         Params {
             destinations,
@@ -33,7 +33,7 @@ impl  Params {
 impl  Parse for Params {
     fn parse(input: syn::parse::ParseStream) -> Result<Self> {
         let mut destinations = HashSet::new();
-        let mut strategies: HashSet<MappingStrategy> =
+        let mut strategies =
             HashSet::with_capacity(MAX_STRATEGIES_BY_ATTRIBUTE);
 
         let args = Punctuated::<Type, Token![,]>::parse_separated_nonempty_until(input, |p| {
@@ -66,7 +66,7 @@ impl  Parse for Params {
     }
 }
 
-fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<MappingStrategy>) -> Result<()> {
+fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<SpannedItem<Path, MappingStrategy>>) -> Result<()> {
     if let Expr::Path(config) = *assign.left {
         if config.path.is_ident("strategy") {
             if let Expr::Path(strategy_expr) = *assign.right {

@@ -109,3 +109,20 @@ pub fn use_with_strategy_should_works(){
     assert_eq!("Marie", person_mapper.name);
 }
 
+// #[test]
+// pub fn additive_mapping(){
+//     #[derive(Mapper)]
+//     struct User {
+//         #[to(Person, exclude)]
+//         name: String,
+//     }
+//     struct Person {
+//         name: String,
+//     }
+//     let user = User {  name: "Marie".to_owned() };
+//     let person_mapper: Person = user.to();
+//     let person_into: Person = user.into();
+    
+//     assert_eq!("Marie", person_into.name);
+//     assert_eq!("Marie", person_mapper.name);
+// }

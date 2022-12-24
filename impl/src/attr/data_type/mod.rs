@@ -4,20 +4,21 @@ use std::rc::Rc;
 use std::vec;
 
 use syn::parse::Parse;
-use syn::{Attribute, Error, Result, TypePath};
+use syn::{Attribute, Error, Result, TypePath, Path};
 use syn::{DeriveInput};
 
 use self::params::Params;
 
 use super::mapping_strategy::MappingStrategy;
+use super::spanned_item::SpannedItem;
 pub mod params;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Attrs<'a> {
     pub to: AggregatedTo<'a>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct To<'a> {
     pub original: &'a Attribute,
     pub params: Params,
@@ -32,9 +33,9 @@ impl<'a> To<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AggregatedTo<'a> {
-    pub destinations_by_strategy: HashMap<MappingStrategy, HashSet<TypePath>>,
+    pub destinations_by_strategy: HashMap<SpannedItem<Path, MappingStrategy>, HashSet<TypePath>>,
     pub to: Vec<To<'a>>
 }
 
@@ -45,9 +46,9 @@ impl<'a> AggregatedTo<'a> {
             to: vec![]
         }
     }
-    // pub fn destinations(&self) -> HashSet<Rc< TypePath>>{
-    //     self.destinations_by_strategy.values().into_iter().flatten().map(|dest| dest.clone()).collect()
-    // }
+    pub fn destinations(&self) -> HashSet<TypePath>{
+        self.destinations_by_strategy.values().into_iter().flatten().map(|dest| dest.clone()).collect()
+    }
 }
 pub fn get(node: &DeriveInput) -> Result<Attrs> {
     let mut aggregated_to = AggregatedTo::new();

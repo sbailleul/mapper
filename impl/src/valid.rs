@@ -1,9 +1,7 @@
-
-
-use syn::{Error, Result, spanned::Spanned};
+use syn::{spanned::Spanned, Error, Result};
 use thiserror::Error;
 
-use crate::{ast::{Input, data_type::Struct}};
+use crate::ast::{data_type::Struct, Input};
 impl Input<'_> {
     pub(crate) fn validate(&self) -> Result<()> {
         match self {
@@ -11,37 +9,33 @@ impl Input<'_> {
         }
     }
 }
-#[derive(Error,Debug)]
+#[derive(Error, Debug)]
 
-pub enum StructError{
+pub enum StructError {
     #[error("Destination type for on field {0} is not referenced in destination types")]
-    DestinationNotFound(String)
+    DestinationNotFound(String),
 }
 impl Struct<'_> {
     fn validate(&self) -> Result<()> {
         for field in &self.fields {
-            for to in &field.attrs.to {
-                for strategy in &to.params.strategies{
-                    if let Some(destinations) = self.attrs.to.destinations_by_strategy.get(&*strategy){
-                        if destinations.contains(&to.params.destination){
-                            return Err(Error::new_spanned(to.original, "To attribute already specify strategy"))
+            for field_to in &field.attrs.to {
+                for field_strategy in &field_to.params.strategies {
+                    if let Some(struct_destinations) =
+                        self.attrs.to.destinations_by_strategy.get(&*field_strategy)
+                    {
+                        if struct_destinations.contains(&field_to.params.destination) {
+                            return Err(Error::new_spanned(
+                                &field_strategy.0,
+                                format!("To struct attribute already specify strategy {}", field_strategy),
+                            ));
                         }
-                    }else{
-
-                    }
+                    } 
+                }
+                if field_to.params.exclude.1 && !self.attrs.to.destinations().contains(&field_to.params.destination){
+                    return Err(Error::new_spanned(&field_to.params.exclude.0, "Cannot exclude a field for a destination not referenced in automatic mapping"));
                 }
             }
         }
-        // for field in &self.fields{
-        //     let non_referenced_type =  field
-        //     .attrs
-        //     .to
-        //     .iter()
-        //     .find(|&to| self.attrs.to.destinations().iter().all(|dest| to.params.ty.path.get_ident() != dest.path.get_ident())); 
-        //     if let Some(non_referenced_type) = non_referenced_type{
-        //         return Err(Error::new(self.original.span(), StructError::DestinationNotFound(non_referenced_type.params.ty.path.get_ident().unwrap().to_string())))
-        //     }
-        // }
         Ok(())
     }
 }

@@ -1,3 +1,6 @@
+#![feature(trait_alias)]
+#![feature(hash_set_entry)]
+#![feature(is_some_with)]
 mod ast;
 mod attr;
 mod expand;

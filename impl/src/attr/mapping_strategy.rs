@@ -3,13 +3,13 @@ use std::{collections::HashSet, fmt::Display, rc::Rc};
 use syn::{spanned::Spanned, Error, Path, Result as SynResult};
 use thiserror::Error;
 
+use super::spanned_item::SpannedItem;
+
 #[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub enum MappingStrategy {
     Into,
     Mapper,
 }
-
-pub struct SpannedStrategy(Rc<dyn Spanned>, MappingStrategy);
 
 
 impl Display for MappingStrategy {
@@ -45,15 +45,16 @@ pub const MAX_STRATEGIES_BY_ATTRIBUTE: usize = 2;
 
 pub fn parse_strategy(
     path: &Path,
-    strategies: &HashSet<MappingStrategy>,
-) -> SynResult<MappingStrategy> {
+    strategies: &HashSet<SpannedItem<Path, MappingStrategy>>,
+) -> SynResult<SpannedItem<Path, MappingStrategy>> {
     if strategies.len() >= MAX_STRATEGIES_BY_ATTRIBUTE {
         Err(Error::new(path.span(), "Only two strategies are available"))
     } else {
         let ident = path
             .get_ident()
             .ok_or(Error::new(path.span(), "Invalid strategy"))?;
-        MappingStrategy::try_from(ident.to_string().as_ref())
-            .map_err(|e| Error::new(path.span(), e))
+        let strategy = MappingStrategy::try_from(ident.to_string().as_ref())
+            .map_err(|e| Error::new(path.span(), e))?;
+        Ok(SpannedItem(Some(path.clone()), strategy))
     }
 }

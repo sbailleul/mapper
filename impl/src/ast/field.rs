@@ -5,7 +5,7 @@ use crate::attr::{field, self, mapping_strategy::MappingStrategy};
 
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Field<'a> {
     pub original: &'a syn::Field,
     pub attrs: field::Attrs<'a>,
@@ -48,7 +48,7 @@ impl<'a> Field<'a> {
 
     pub fn is_excluded(&self, path: &TypePath) -> bool{
         if let Some(field) = self.get_to_by_type(path){
-            field.params.exclude
+            field.params.exclude.1
         }else{
             false
         }
