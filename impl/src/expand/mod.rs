@@ -10,7 +10,7 @@ use syn::DeriveInput;
 use syn::Result;
 
 use crate::ast::Input;
-use crate::ast::MappingTree;
+use crate::ast::mapping_tree::MappingTree;
 use crate::{ast::data_type::Struct, attr::mapping_strategy::MappingStrategy};
 
 
@@ -25,7 +25,6 @@ pub fn derive(node: &DeriveInput) -> Result<TokenStream> {
 
 fn impl_struct(input: Struct) -> TokenStream {
     let mapping_trees = HashSet::<MappingTree>::from(input.clone());
-    eprintln!("MAPPING TREES {:?}", mapping_trees);
     let (_impl_generics, _ty_generics, _where_clause) = input.generics.split_for_impl();
     let mut token_stream = TokenStream::new();
     for mapping_tree in mapping_trees {

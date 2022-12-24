@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
-use crate::{ast::MappingField, attr::mapping_strategy::MappingStrategy};
+use crate::{ast::mapping_field::MappingField, attr::mapping_strategy::MappingStrategy};
 
 
 impl MappingField {

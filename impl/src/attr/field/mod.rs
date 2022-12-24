@@ -4,6 +4,8 @@ use syn::{Attribute, TypePath};
 
 
 use self::params::Params;
+
+use super::mapping_strategy::MappingStrategy;
 pub mod params;
 
 #[derive(Debug, Clone)]
@@ -13,8 +15,11 @@ pub struct Attrs<'a> {
 
 impl <'a> Attrs<'a>{
     pub fn has_to_exclude_field_for_destination(&self, destination: &TypePath)->bool{
-        self.to.iter().any(|to| &to.params.destination == destination && to.params.exclude.1)
+        self.to.iter().any(|to| to.params.is_excluded_for_destination(destination))
     } 
+    pub fn is_additive_mapping_for_destination_and_strategy(&self, destination: &TypePath, strategy: &MappingStrategy)->bool{
+        self.to.iter().any(|to| to.params.is_additive_mapping_for_destination_and_strategy(destination, strategy))
+    }
 }
 
 #[derive(Clone, Debug)]

@@ -15,9 +15,7 @@ use crate::attr::{
 #[derive(Error, Debug)]
 pub enum ParamsError {
     #[error("excluded attribute couldn't have other configurations fields")]
-    ExcludedField,
-    #[error("strategy {0} isn't set in strategy config")]
-    UndefinedStrategy(MappingStrategy),
+    ExcludedField
 }
 #[derive(Clone, Debug)]
 pub struct Params {
@@ -33,6 +31,15 @@ impl Params {
         let with = self.with.iter().find(|&w| &w.1 == strategy);
         Option::flatten(with.map(|w| w.0.clone()))
     }
+    pub fn is_excluded_for_destination(&self, destination: &TypePath)->bool{
+        &self.destination == destination && self.exclude.1
+    } 
+    pub fn is_additive_mapping_for_destination_and_strategy(&self, destination: &TypePath, strategy: &MappingStrategy)->bool{
+        &self.destination == destination && self.strategies.iter().any(|self_strategy|  &self_strategy.1 == strategy)
+    } 
+    pub fn is_additive_mapping_for_destination(&self, destination: &TypePath)->bool{
+        &self.destination == destination && !self.strategies.is_empty()
+    } 
 }
 
 impl Params {
@@ -43,14 +50,9 @@ impl Params {
         exclude: SpannedItem<Path, bool>,
         strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
     ) -> Result<Self, ParamsError> {
-        let undefined_strategy = with.iter().find(|&w| !strategies.contains(w));
          if exclude.1 && (field.is_some() || !with.is_empty()) {
             Err(ParamsError::ExcludedField)
-        } else if undefined_strategy.is_some() && !strategies.is_empty() {
-            Err(ParamsError::UndefinedStrategy(
-                undefined_strategy.unwrap().1.clone(),
-            ))
-        } else {
+        }else {
             Ok(Self {
                 destination: ty,
                 field,

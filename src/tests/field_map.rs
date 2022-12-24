@@ -109,20 +109,29 @@ pub fn use_with_strategy_should_works(){
     assert_eq!("Marie", person_mapper.name);
 }
 
-// #[test]
-// pub fn additive_mapping(){
-//     #[derive(Mapper)]
-//     struct User {
-//         #[to(Person, exclude)]
-//         name: String,
-//     }
-//     struct Person {
-//         name: String,
-//     }
-//     let user = User {  name: "Marie".to_owned() };
-//     let person_mapper: Person = user.to();
-//     let person_into: Person = user.into();
+
+
+#[test]
+pub fn use_with_strategy_should_works_for_for_additive_and_automatic_mapping(){
+    fn map_into(val: String) -> String{
+        val.to_uppercase()
+    }
+    fn map_mapper(val: &str) -> String{
+        val.to_lowercase()
+    }
+    #[derive(Mapper)]
+    #[to(Person)]
+    struct User {
+        #[to(Person, with(into)=map_into, with(mapper)=map_mapper, strategy=into)]
+        name: String
+    }
+    struct Person {
+        name: String,
+    }
+    let user = User {  name: "Marie".to_owned() };
+    let person_mapper: Person = user.to();
+    let person_into: Person = user.into();
     
-//     assert_eq!("Marie", person_into.name);
-//     assert_eq!("Marie", person_mapper.name);
-// }
+    assert_eq!("MARIE", person_into.name);
+    assert_eq!("marie", person_mapper.name);
+}

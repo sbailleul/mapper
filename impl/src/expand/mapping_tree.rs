@@ -1,6 +1,6 @@
 use quote::{TokenStreamExt, ToTokens};
 
-use crate::{ast::MappingTree, attr::mapping_strategy::MappingStrategy};
+use crate::{ast::mapping_tree::MappingTree, attr::mapping_strategy::MappingStrategy};
 
 
 impl MappingTree{
