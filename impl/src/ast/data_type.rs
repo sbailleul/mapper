@@ -1,7 +1,7 @@
 use proc_macro2::Ident;
-use syn::{DeriveInput, Generics, DataStruct,Result};
+use syn::{DeriveInput, Generics, DataStruct,Result, TypePath};
 
-use crate::attr::{data_type, self};
+use crate::attr::{data_type::{self, params::Params}, self, mapping_strategy::MappingStrategy, aggregated_to::AggregatedTo, attr::Attrs, to::To};
 
 use super::field::Field;
 
@@ -10,7 +10,7 @@ use super::field::Field;
 #[derive(Clone, Debug)]
 pub struct Struct<'a> {
     pub original: &'a DeriveInput,
-    pub attrs: data_type::Attrs<'a>,
+    pub attrs: Attrs<To<'a, Params>>,
     pub ident: Ident,
     pub generics: &'a Generics,
     pub fields: Vec<Field<'a>>,
@@ -29,4 +29,10 @@ impl<'a> Struct<'a> {
             fields,
         })
     }
+
+    pub fn has_strategy_for_destination(&self, destination: &TypePath, strategy: &MappingStrategy) -> bool{
+        self.attrs.to.has_destination_for_strategy(destination, strategy) 
+        || self.fields.iter().any(|field| field.attrs.to.has_destination_for_strategy(destination, strategy))
+    }
 }
+

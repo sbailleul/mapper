@@ -16,6 +16,10 @@ doctest = false
 mapper-impl = { version = "=1.0.3", path = "impl" }
 mapper-api = { version = "=1.0.2", path = "api" }
 
+[dev-dependencies]
+rustversion = "1.0.11"
+trybuild = { version = "1.0.72", features = ["diff"] }
+
 [workspace]
 members = [
     "api",

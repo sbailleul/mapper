@@ -3,8 +3,8 @@ use std::{collections::HashSet, fmt::Debug};
 use syn::{Data, DeriveInput, Error, Path, Result};
 
 use crate::attr::{
-    field::To, mapping_strategy::MappingStrategy,
-    spanned_item::SpannedItem,
+     mapping_strategy::MappingStrategy,
+    spanned_item::SpannedItem, field::params::Params, to::To,
 };
 
 use self::{data_type::Struct, mapping_tree::{MappingTree, MappingType}, mapping_field::MappingField};
@@ -35,7 +35,7 @@ impl From<Struct<'_>> for HashSet<MappingTree> {
         initialize_automatic_mapping_trees(&mut mapping_trees, &value);
         for field in &value.fields {
             add_all_fields_to_automatic_mapping_trees(&mut mapping_trees, field);
-            for field_to in &field.attrs.to {
+            for field_to in &field.attrs.to.to_items {
                 if field_to.params.exclude.1 {
                     remove_excluded_fields_for_mapping_trees(&mut mapping_trees, field_to, field);
                     continue;
@@ -61,7 +61,7 @@ impl From<Struct<'_>> for HashSet<MappingTree> {
 fn add_with_function(
     mapping_trees: &mut HashSet<MappingTree>,
     value: &Struct,
-    field_to: &To,
+    field_to: &To<Params>,
     with: &SpannedItem<Path, MappingStrategy>,
     field: &field::Field,
 ) {
@@ -94,7 +94,7 @@ fn add_with_function(
 fn add_mapping_field_for_additive_mapping_trees(
     mapping_trees: &mut HashSet<MappingTree>,
     value: &Struct,
-    field_to: &To,
+    field_to: &To<Params>,
     field_strategy: &MappingStrategy,
     field: &field::Field,
 ) {
@@ -125,7 +125,7 @@ fn add_mapping_field_for_additive_mapping_trees(
 
 fn remove_excluded_fields_for_mapping_trees(
     mapping_trees: &mut HashSet<MappingTree>,
-    field_to: &crate::attr::field::To,
+    field_to: &To<Params>,
     field: &field::Field,
 ) {
     let mapping_trees_with_excluded_field_removed = mapping_trees

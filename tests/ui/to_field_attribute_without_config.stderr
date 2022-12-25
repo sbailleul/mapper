@@ -1,0 +1,5 @@
+error: To field attribute should contains configuration
+ --> tests/ui/to_field_attribute_without_config.rs:6:10
+  |
+6 |     #[to(Person)]
+  |          ^^^^^^

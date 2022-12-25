@@ -1,0 +1,5 @@
+error: Additive mapping not works for destination (Person) and strategy (mapper) because it's already used in automatic mapping
+ --> tests/ui/additive_mapping_on_automatic_mapping_dest.rs:6:28
+  |
+6 |     #[to(Person,  strategy=mapper)]
+  |                            ^^^^^^

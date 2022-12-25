@@ -5,7 +5,6 @@ mod ast;
 mod attr;
 mod expand;
 mod valid;
-mod test;
 mod common;
 extern crate proc_macro;
 

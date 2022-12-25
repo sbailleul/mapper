@@ -12,7 +12,7 @@ impl Input<'_> {
 impl Struct<'_> {
     fn validate(&self) -> Result<()> {
         for field in &self.fields {
-            for field_to in &field.attrs.to {
+            for field_to in &field.attrs.to.to_items {
                 for field_strategy in &field_to.params.strategies {
                     if let Some(struct_destinations) =
                         self.attrs.to.destinations_by_strategy.get(field_strategy)
@@ -21,8 +21,8 @@ impl Struct<'_> {
                             return Err(Error::new_spanned(
                                 &field_strategy.0,
                                 format!(
-                                    "Additive mapping not works for destination {} and strategy because it's already used in automatic mapping {}", 
-                                    field_to.params.destination.path.get_ident().unwrap().to_string(),
+                                    "Additive mapping not works for destination ({}) and strategy ({}) because it's already used in automatic mapping", 
+                                    field_to.params.destination.path.get_ident().unwrap(),
                                     field_strategy
                             ),
                             ));
@@ -39,9 +39,13 @@ impl Struct<'_> {
                     return Err(Error::new_spanned(
                         &field_to.params.exclude.0,
                          format!(
-                            "Cannot exclude a field for a destination {} not referenced in automatic mapping",
-                             field_to.params.destination.path.get_ident().unwrap().to_string()) 
+                            "Cannot exclude a field for a destination ({}) not referenced in automatic mapping",
+                             field_to.params.destination.path.get_ident().unwrap()) 
                             ));
+                }
+
+                for field_with in &field_to.params.with {
+                    
                 }
             }
         }

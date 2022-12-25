@@ -1,0 +1,5 @@
+error: Cannot exclude a field for a destination (Person) not referenced in automatic mapping
+ --> tests/ui/exclude_additive_mapping_field.rs:5:18
+  |
+5 |     #[to(Person, exclude, strategy=into)]
+  |                  ^^^^^^^

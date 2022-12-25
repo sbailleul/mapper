@@ -1,6 +1,6 @@
-use std::fmt::Display;
 
-use syn::{parse::{Parse, ParseStream},Result, punctuated::Punctuated, token::Token, TypePath};
+
+use syn::{parse::{Parse, ParseStream},Result, punctuated::Punctuated, token::Token};
 
 
 

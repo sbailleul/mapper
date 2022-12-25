@@ -1,6 +1,6 @@
 use std::{collections::HashSet, fmt::Display};
 
-use syn::{spanned::Spanned, Error, Path, Result as SynResult};
+use syn::{Error, Path, Result as SynResult};
 use thiserror::Error;
 
 use super::spanned_item::SpannedItem;
@@ -10,6 +10,7 @@ pub enum MappingStrategy {
     Into,
     Mapper,
 }
+
 
 
 impl Display for MappingStrategy {

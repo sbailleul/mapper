@@ -3,7 +3,7 @@ use std::{collections::HashSet};
 
 use syn::{
     parse::{Parse},
-    punctuated::Punctuated, Expr, Result, Token, Type, TypePath, Path,
+    punctuated::Punctuated, Expr, Result, Token, Type, TypePath, Path, Error,
 };
 
 use crate::{
@@ -37,8 +37,7 @@ impl  Parse for Params {
 
         let args = Punctuated::<Type, Token![,]>::parse_separated_nonempty_until(input, |p| {
             p.peek2(Token![=])
-        })
-        .expect("Invalid destination types");
+        }).map_err(|_|Error::new(input.span(), "To struct attribute destinations couldn't be parsed"))?;
 
         for arg in args {
             match arg {
@@ -50,7 +49,7 @@ impl  Parse for Params {
         }
         if !input.is_empty() {
             let args = Punctuated::<Expr, Token![,]>::parse_separated_nonempty(input)
-                .expect("Invalid configuration");
+                .map_err(|_| Error::new(input.span(), "To struct attribute configuration couldn't be parsed"))?;
             for arg in args {
                 match arg {
                     Expr::Assign(assign) => {

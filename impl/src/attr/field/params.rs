@@ -27,22 +27,6 @@ pub struct Params {
 }
 
 impl Params {
-    pub fn get_with_by_strategy(&self, strategy: &MappingStrategy) -> Option<Path> {
-        let with = self.with.iter().find(|&w| &w.1 == strategy);
-        Option::flatten(with.map(|w| w.0.clone()))
-    }
-    pub fn is_excluded_for_destination(&self, destination: &TypePath)->bool{
-        &self.destination == destination && self.exclude.1
-    } 
-    pub fn is_additive_mapping_for_destination_and_strategy(&self, destination: &TypePath, strategy: &MappingStrategy)->bool{
-        &self.destination == destination && self.strategies.iter().any(|self_strategy|  &self_strategy.1 == strategy)
-    } 
-    pub fn is_additive_mapping_for_destination(&self, destination: &TypePath)->bool{
-        &self.destination == destination && !self.strategies.is_empty()
-    } 
-}
-
-impl Params {
     pub fn new(
         ty: TypePath,
         field: Option<Path>,
@@ -71,14 +55,14 @@ impl Parse for Params {
         let mut exclude = None;
         let mut strategies = HashSet::new();
 
-        if let Ok(Type::Path(ty)) = input.parse::<Type>() {
-            if !input.is_empty() {
-                input
-                    .parse::<Token![,]>()
-                    .expect("If there is arguments destination type should be followed by a comma");
-            }
+        if let Ok(Type::Path(ty)) = &input.parse::<Type>() {
+            if input.is_empty(){
+                Err(Error::new_spanned(ty, "To field attribute should contains configuration"))
+            }else{
+                input.parse::<Token![,]>().map_err(|_| Error::new_spanned(ty, "To field attribute destination should be followed by comma"))
+            }?;
             let args = Punctuated::<Expr, Token![,]>::parse_separated_nonempty(input)
-                .expect("Attribute shouldn't be empty");
+                .map_err(|_| Error::new_spanned(ty, "To field attribute configuration couldn't be parsed"))?;
             for arg in args {
                 match arg {
                     Expr::Assign(assign) => {
@@ -90,12 +74,12 @@ impl Parse for Params {
                     _ => (),
                 }
             }
-            Params::new(ty, field, with, exclude.unwrap_or_default(), strategies)
+            Params::new(ty.clone(), field, with, exclude.unwrap_or_default(), strategies)
                 .map_err(|err| syn::Error::new(input.span(), err))
         } else {
             Err(Error::new(
                 input.span(),
-                "Destination type should be specified at first position",
+                "To field attribute destination type should be specified at first position",
             ))
         }
     }
@@ -185,7 +169,7 @@ fn insert_with(
     if with.contains(&new_with) {
         Err(Error::new_spanned(
             with_fn,
-            format!("Cannot add multiple with from same strategy {}", new_with.1),
+            format!("Cannot add multiple with from same strategy ({})", new_with.1),
         ))
     } else {
         with.insert(new_with);
