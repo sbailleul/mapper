@@ -65,10 +65,14 @@ fn add_with_function(
     with: &SpannedItem<Path, MappingStrategy>,
     field: &field::Field,
 ) {
+    if field_to.params.destination.is_none(){
+        return;
+    }
+    let field_dest = field_to.params.destination.as_ref().unwrap();
     let mut mapping_tree = mapping_trees
         .get(&MappingTree::new(
             value.ident.clone(),
-            field_to.params.destination.clone(),
+            field_dest.clone(),
             with.1.clone(),
             None,
         ))
@@ -96,12 +100,16 @@ fn add_mapping_field_for_additive_mapping_trees(
     value: &Struct,
     field_to: &To<Params>,
     field_strategy: &MappingStrategy,
-    field: &field::Field,
+    field: &field::Field
 ) {
+    if field_to.params.destination.is_none(){
+        return;
+    }
+    let field_dest = field_to.params.destination.as_ref().unwrap();
     let mut mapping_tree = mapping_trees
         .get_or_insert(MappingTree::new(
             value.ident.clone(),
-            field_to.params.destination.clone(),
+            field_dest.clone(),
             field_strategy.clone(),
             Some(MappingType::Additive),
         ))
@@ -130,7 +138,7 @@ fn remove_excluded_fields_for_mapping_trees(
 ) {
     let mapping_trees_with_excluded_field_removed = mapping_trees
         .iter()
-        .filter(|&mapping_tree| mapping_tree.destination == field_to.params.destination)
+        .filter(|&mapping_tree| field_to.params.destination.is_none() || &mapping_tree.destination == field_to.params.destination.as_ref().unwrap())
         .map(|mapping_tree| {
             let mut mapping_tree = mapping_tree.clone();
             mapping_tree.remove_mapping_fields_by_member(&field.member);

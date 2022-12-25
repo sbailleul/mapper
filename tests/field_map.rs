@@ -136,20 +136,22 @@ pub fn use_with_strategy_should_works_for_for_additive_and_automatic_mapping(){
     assert_eq!("marie", person_mapper.name);
 }
 
+
 #[test]
-pub fn t(){
-    fn map_into(val: String) -> String{
-        val.to_uppercase()
-    }
-    fn map_mapper(val: &str) -> String{
-        val.to_lowercase()
-    }
+pub fn exclude_field_wihtout_destination_should_never_be_mapped(){
     #[derive(Mapper)]
+    #[to(Person)]
     struct User {
-        #[to(Person, with(into)=map_into, with(mapper)=map_mapper, strategy=into)]
-        name: String
+        #[to(exclude)]
+        name: String,
+        age: u16
     }
     struct Person {
-        name: String,
+        age: u16,
     }
+    let user = User {  name: "Marie".to_owned(), age: 30 };
+    let person: Person = user.to();
+    
+    assert_eq!(30, person.age);
 }
+

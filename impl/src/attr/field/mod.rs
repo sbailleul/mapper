@@ -24,13 +24,21 @@ impl To<'_, Params>{
         Option::flatten(with.map(|w| w.0.clone()))
     }
     pub fn is_excluded_for_destination(&self, destination: &TypePath)->bool{
-        &self.params.destination == destination && self.params.exclude.1
+        self.params.exclude.1 && if let Some(dest) = &self.params.destination{
+            dest == destination 
+        }else{
+            true
+        }
     } 
     pub fn is_additive_mapping_for_destination_and_strategy(&self, destination: &TypePath, strategy: &MappingStrategy)->bool{
-        &self.params.destination == destination && self.params.strategies.iter().any(|self_strategy|  &self_strategy.1 == strategy)
+        self.params.destination.is_some_and(|dest|
+            dest == destination && self.params.strategies.iter().any(|self_strategy|  &self_strategy.1 == strategy)
+        )
     } 
     pub fn is_additive_mapping_for_destination(&self, destination: &TypePath)->bool{
-        &self.params.destination == destination && !self.params.strategies.is_empty()
+        self.params.destination.is_some_and(|dest|
+            dest == destination && !self.params.strategies.is_empty()
+        )
     } 
 }
 
@@ -46,15 +54,17 @@ pub fn get(input: &syn::Field) -> syn::Result<Attrs<To<Params>>> {
                     .destinations_by_strategy
                     .entry(strategy.clone())
                     .or_insert(HashSet::new());
-                let to_destination = to.params.destination.clone();
-                if let Some(destination) = registered_destinations.replace(to_destination){
-                    return Err(
-                        Error::new_spanned(attr, 
-                            format!("You cannot specify multiple time same destination for a given strategy, strategy ({}), destination ({})"
-                            ,strategy
-                            ,destination.path.get_ident().unwrap().to_string()
-                    )))
+                if let Some(to_destination) = &to.params.destination{
+                    if let Some(destination) = registered_destinations.replace(to_destination.clone()){
+                        return Err(
+                            Error::new_spanned(attr, 
+                                format!("You cannot specify multiple time same destination for a given strategy, strategy ({}), destination ({})"
+                                ,strategy
+                                ,destination.path.get_ident().unwrap().to_string()
+                        )))
+                    }
                 }
+               
             } 
             aggregated_to.to_items.push(to);
         }
