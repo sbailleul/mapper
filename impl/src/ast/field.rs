@@ -1,11 +1,10 @@
-use proc_macro2::{Ident, TokenStream};
-use syn::{Fields, Index, Member, Result, Type, TypePath};
+
+use syn::{Fields, Index, Member, Result, Type};
 
 use crate::attr::{
     self,
     attr::Attrs,
-    field::{self, params::Params},
-    mapping_strategy::MappingStrategy, to::To,
+    field::{params::Params}, to::To,
 };
 
 #[derive(Debug, Clone)]

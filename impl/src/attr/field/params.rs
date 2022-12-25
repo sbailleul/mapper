@@ -1,6 +1,6 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{collections::HashSet};
 
-use proc_macro2::Ident;
+
 use syn::{
     custom_keyword, parse::Parse, punctuated::Punctuated, token::Comma, Error, Expr, ExprPath,
     Path, Token, Type, TypePath,
@@ -34,7 +34,7 @@ impl Params {
         exclude: SpannedItem<Path, bool>,
         strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
     ) -> Result<Self, ParamsError> {
-        if exclude.1 && (field.is_some() || !with.is_empty() || !strategies.is_empty()) {
+        if exclude.1 && (field.is_some() || !with.is_empty()) {
             Err(ParamsError::ExcludedField)
         } else {
             Ok(Self {

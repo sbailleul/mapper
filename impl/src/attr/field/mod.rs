@@ -1,14 +1,14 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashSet};
 
-use syn::parse::Parse;
 
-use syn::{Attribute, TypePath, Path, Error};
+
+use syn::{TypePath, Path, Error};
 
 
 use self::params::Params;
 
 use super::mapping_strategy::MappingStrategy;
-use super::spanned_item::SpannedItem;
+
 pub mod params;
 
 use super::aggregated_to::AggregatedTo ;
@@ -60,7 +60,7 @@ pub fn get(input: &syn::Field) -> syn::Result<Attrs<To<Params>>> {
                             Error::new_spanned(attr, 
                                 format!("You cannot specify multiple time same destination for a given strategy, strategy ({}), destination ({})"
                                 ,strategy
-                                ,destination.path.get_ident().unwrap().to_string()
+                                ,destination.path.get_ident().unwrap()
                         )))
                     }
                 }

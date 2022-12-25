@@ -1,4 +1,4 @@
-use std::fmt::format;
+
 
 use syn::{Error, Result};
 
@@ -23,7 +23,7 @@ impl Struct<'_> {
                     if let Some(struct_destinations) =
                         self.attrs.to.destinations_by_strategy.get(field_strategy)
                     {
-                        if struct_destinations.contains(&field_dest) {
+                        if struct_destinations.contains(field_dest) {
                             return Err(Error::new_spanned(
                                 &field_strategy.0,
                                 format!(
@@ -40,7 +40,7 @@ impl Struct<'_> {
                         .attrs
                         .to
                         .destinations()
-                        .contains(&field_dest)
+                        .contains(field_dest)
                 {
                     return Err(Error::new_spanned(
                         &field_to.params.exclude.0,
@@ -51,13 +51,13 @@ impl Struct<'_> {
                 }
 
                 for field_with in &field_to.params.with {
-                    if !self.has_strategy_for_destination(&field_dest, &field_with.1){
+                    if !self.has_strategy_for_destination(field_dest, &field_with.1){
                         return Err(Error::new_spanned(
                             field_with.0.clone(),
                              format!(
                                 "There is no destination and strategy matching with strategy ({}) and destination ({})",
                                 field_with.1,
-                                field_dest.path.get_ident().unwrap().to_string()    
+                                field_dest.path.get_ident().unwrap()    
                             )))
                     }
                 }
