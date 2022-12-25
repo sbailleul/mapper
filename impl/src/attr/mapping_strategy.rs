@@ -11,7 +11,22 @@ pub enum MappingStrategy {
     Mapper,
 }
 
-
+impl MappingStrategy {
+    pub fn str_to_hash_set(
+        val: &str,
+    ) -> Result<HashSet<MappingStrategy>, MappingStrategyParseError> {
+        match val {
+            "all" => Ok([MappingStrategy::Into, MappingStrategy::Mapper]
+                .into_iter()
+                .collect()),
+            _val => {
+                let mut set = HashSet::new();
+                set.insert(MappingStrategy::try_from(_val)?);
+                Ok(set)
+            }
+        }
+    }
+}
 
 impl Display for MappingStrategy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -42,20 +57,27 @@ impl TryFrom<&str> for MappingStrategy {
         }
     }
 }
+
 pub const MAX_STRATEGIES_BY_ATTRIBUTE: usize = 2;
 
 pub fn parse_strategy(
     path: &Path,
     strategies: &HashSet<SpannedItem<Path, MappingStrategy>>,
-) -> SynResult<SpannedItem<Path, MappingStrategy>> {
+) -> SynResult<HashSet<SpannedItem<Path, MappingStrategy>>> {
     if strategies.len() >= MAX_STRATEGIES_BY_ATTRIBUTE {
-        Err(Error::new_spanned(path, "Only two strategies are available"))
+        Err(Error::new_spanned(
+            path,
+            "Only two strategies are available",
+        ))
     } else {
         let ident = path
             .get_ident()
             .ok_or(Error::new_spanned(path, "Invalid strategy"))?;
-        let strategy = MappingStrategy::try_from(ident.to_string().as_ref())
+        let strategies = MappingStrategy::str_to_hash_set(ident.to_string().as_ref())
             .map_err(|e| Error::new_spanned(path, e))?;
-        Ok(SpannedItem(Some(path.clone()), strategy))
+        Ok(strategies
+            .into_iter()
+            .map(|strategy| SpannedItem::new(path.clone(), strategy))
+            .collect())
     }
 }

@@ -4,7 +4,7 @@
 [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
 [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&labelColor=555555&logo=rust
 [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs
-This library provides a convenient derive macro for implementing [mapper_api::Mapper<T>] trait and generate mapping without boilerplate.
+This library provides a convenient derive macro for implementing [mapper_api::Mapper<T>] or [std::convert::Into] trait and generate mapping without boilerplate.
 
 <br>
 
@@ -24,11 +24,15 @@ struct User{
     pub name: String,
     #[to(Person, with=map_account_id)]
     pub account_id: u16,
+    #[to(Tree, strategy=)]
     pub age: u8
 }
 struct Person{
     pub _name: String,
     pub account_id: String,
+    pub age: u8
+}
+struct Tree{
     pub age: u8
 }
 ```

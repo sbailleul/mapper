@@ -138,7 +138,7 @@ pub fn use_with_strategy_should_works_for_for_additive_and_automatic_mapping(){
 
 
 #[test]
-pub fn exclude_field_wihtout_destination_should_never_be_mapped(){
+pub fn exclude_field_without_destination_should_never_be_mapped(){
     #[derive(Mapper)]
     #[to(Person)]
     struct User {
@@ -155,3 +155,19 @@ pub fn exclude_field_wihtout_destination_should_never_be_mapped(){
     assert_eq!(30, person.age);
 }
 
+#[test]
+pub fn additive_mapping_use_all_strategies(){
+    #[derive(Mapper)]
+    struct User {
+        #[to(Person, strategy=all)]
+        age: u16
+    }
+    struct Person {
+        age: u16,
+    }
+    let user = User {   age: 30 };
+    let person_mapper: Person = user.to();
+    let person_into: Person = user.into();
+    assert_eq!(30, person_into.age);
+    assert_eq!(30, person_mapper.age);
+}

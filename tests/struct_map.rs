@@ -87,3 +87,20 @@ pub fn map_field_by_consuming_self() {
     let person: Person = user.into();
     assert_eq!("Marie", person.name )
 }
+
+#[test]
+pub fn map_field_use_all_strategies() {
+    #[derive(Mapper)]
+    #[to(Person, strategy=all)]
+    struct User {
+        name: String,
+    }
+    struct Person {
+        name: String,
+    }
+    let user = User{name: "Marie".to_owned()};
+    let person_mapper: Person = user.to();
+    let person_into: Person = user.into();
+    assert_eq!("Marie", person_into.name );
+    assert_eq!("Marie", person_mapper.name );
+}

@@ -68,8 +68,8 @@ fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<SpannedItem<Pa
     if let Expr::Path(config) = *assign.left {
         if config.path.is_ident("strategy") {
             if let Expr::Path(strategy_expr) = *assign.right {
-                let strategy =  parse_strategy(&strategy_expr.path, strategies)?;
-                strategies.insert(strategy);
+                let founded_strategies =  parse_strategy(&strategy_expr.path, strategies)?;
+                strategies.extend(founded_strategies);
             }
         }
     }
