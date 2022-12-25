@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use syn::{Error, Result};
 
 use crate::ast::{data_type::Struct, Input};
@@ -45,7 +47,15 @@ impl Struct<'_> {
                 }
 
                 for field_with in &field_to.params.with {
-                    
+                    if !self.has_strategy_for_destination(&field_to.params.destination, &field_with.1){
+                        return Err(Error::new_spanned(
+                            field_with.0.clone(),
+                             format!(
+                                "There is no destination and strategy matching with strategy ({}) and destination ({})",
+                                field_with.1,
+                                field_to.params.destination.path.get_ident().unwrap().to_string()    
+                            )))
+                    }
                 }
             }
         }

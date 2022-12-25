@@ -146,7 +146,7 @@ pub fn t(){
     }
     #[derive(Mapper)]
     struct User {
-        #[to(Person, with(into)=map_into, with(mapper)=map_mapper, strategy=into, strategy=mapper)]
+        #[to(Person, with(into)=map_into, with(mapper)=map_mapper, strategy=into)]
         name: String
     }
     struct Person {

@@ -1,0 +1,15 @@
+error: There is no destination and strategy matching with strategy (mapper) and destination (Person)
+  --> tests/ui/with_use_undefined_strategy.rs:10:23
+   |
+10 |     #[to(Person, with=with_test)]
+   |                       ^^^^^^^^^
+
+error[E0308]: mismatched types
+ --> tests/ui/with_use_undefined_strategy.rs:4:5
+  |
+3 | fn with_test(val: &String)->String{
+  |                             ------ expected `String` because of return type
+4 |     val
+  |     ^^^- help: try using a conversion method: `.to_string()`
+  |     |
+  |     expected struct `String`, found `&String`

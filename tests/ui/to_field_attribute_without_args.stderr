@@ -1,0 +1,5 @@
+error: To field attribute destination type should be specified at first position
+ --> tests/ui/to_field_attribute_without_destination.rs:5:10
+  |
+5 |     #[to()]
+  |          ^
