@@ -2,12 +2,11 @@ use std::collections::HashSet;
 use std::hash::Hash;
 
 use proc_macro2::Ident;
-use syn::{TypePath, Member};
+use syn::{Member, TypePath};
 
 use crate::attr::mapping_strategy::MappingStrategy;
 
 use super::mapping_field::MappingField;
-
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum MappingType {
@@ -59,7 +58,8 @@ impl MappingTree {
         let fields = self
             .mapping_fields
             .iter()
-            .filter(|&field| &field.member == member).cloned()
+            .filter(|&field| &field.member == member)
+            .cloned()
             .collect::<Vec<MappingField>>();
         for field in fields {
             self.mapping_fields.remove(&field);

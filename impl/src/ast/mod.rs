@@ -1,30 +1,34 @@
-
 use std::{collections::HashSet, fmt::Debug};
 use syn::{Data, DeriveInput, Error, Path, Result};
 
 use crate::attr::{
-     mapping_strategy::MappingStrategy,
-    spanned_item::SpannedItem, field::params::Params, to::To,
+    field::params::Params, mapping_strategy::MappingStrategy, spanned_item::SpannedItem, to::To,
 };
 
-use self::{data_type::Struct, mapping_tree::{MappingTree, MappingType}, mapping_field::MappingField};
+use self::{
+    data_type::Struct,
+    mapping_field::MappingField,
+    mapping_tree::{MappingTree, MappingType},
+};
 
 pub mod data_type;
 pub mod field;
-pub mod mapping_tree;
 pub mod mapping_field;
+pub mod mapping_tree;
 
 #[derive(Debug)]
 pub enum Input<'a> {
     Struct(Struct<'a>),
 }
 
-
 impl<'a> Input<'a> {
     pub fn from_syn(node: &'a DeriveInput) -> Result<Self> {
         match &node.data {
             Data::Struct(data) => Struct::from_syn(node, data).map(Input::Struct),
-            _ => Err(Error::new_spanned(node, "Only c style structs are supported")),
+            _ => Err(Error::new_spanned(
+                node,
+                "Only c style structs are supported",
+            )),
         }
     }
 }
@@ -65,7 +69,7 @@ fn add_with_function(
     with: &SpannedItem<Path, MappingStrategy>,
     field: &field::Field,
 ) {
-    if field_to.params.destination.is_none(){
+    if field_to.params.destination.is_none() {
         return;
     }
     let field_dest = field_to.params.destination.as_ref().unwrap();
@@ -100,9 +104,9 @@ fn add_mapping_field_for_additive_mapping_trees(
     value: &Struct,
     field_to: &To<Params>,
     field_strategy: &MappingStrategy,
-    field: &field::Field
+    field: &field::Field,
 ) {
-    if field_to.params.destination.is_none(){
+    if field_to.params.destination.is_none() {
         return;
     }
     let field_dest = field_to.params.destination.as_ref().unwrap();
@@ -138,7 +142,10 @@ fn remove_excluded_fields_for_mapping_trees(
 ) {
     let mapping_trees_with_excluded_field_removed = mapping_trees
         .iter()
-        .filter(|&mapping_tree| field_to.params.destination.is_none() || &mapping_tree.destination == field_to.params.destination.as_ref().unwrap())
+        .filter(|&mapping_tree| {
+            field_to.params.destination.is_none()
+                || &mapping_tree.destination == field_to.params.destination.as_ref().unwrap()
+        })
         .map(|mapping_tree| {
             let mut mapping_tree = mapping_tree.clone();
             mapping_tree.remove_mapping_fields_by_member(&field.member);

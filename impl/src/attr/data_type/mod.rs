@@ -1,24 +1,15 @@
-use std::collections::{HashSet};
+use std::collections::HashSet;
 
-
-
-
-
+use syn::DeriveInput;
 use syn::{Error, Result};
-use syn::{DeriveInput};
 
 use self::params::Params;
 
 use super::aggregated_to::AggregatedTo;
 use super::attr::Attrs;
 
-
 use super::to::To;
 pub mod params;
-
-
-
-
 
 pub fn get(node: &DeriveInput) -> Result<Attrs<To<Params>>> {
     let mut aggregated_to = AggregatedTo::new();
@@ -32,14 +23,14 @@ pub fn get(node: &DeriveInput) -> Result<Attrs<To<Params>>> {
                     .or_insert(HashSet::new());
                 let to_destinations = to.params.destinations.clone();
                 let common_destinations = to_destinations.intersection(registered_destinations);
-                if common_destinations.clone().count() > 0{
+                if common_destinations.clone().count() > 0 {
                     return Err(
-                        Error::new_spanned(attr, 
+                        Error::new_spanned(attr,
                             format!("You cannot specify multiple time same destination for a given strategy, strategy ({}), destinations ({})"
                             ,strategy
                             ,common_destinations.map(|dest|dest.path.get_ident().unwrap().to_string()).collect::<Vec<String>>().join(",")
                     )
-                        ))
+                        ));
                 }
                 registered_destinations.extend(to_destinations);
             }

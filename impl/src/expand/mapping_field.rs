@@ -3,26 +3,25 @@ use quote::ToTokens;
 
 use crate::{ast::mapping_field::MappingField, attr::mapping_strategy::MappingStrategy};
 
-
 impl MappingField {
-    pub fn get_dest_field(&self) -> TokenStream  {
+    pub fn get_dest_field(&self) -> TokenStream {
         if let Some(field) = &self.field {
             field.into_token_stream()
         } else {
             (&self.member).into_token_stream()
         }
     }
-    pub fn get_src_field(&self) -> TokenStream  {
+    pub fn get_src_field(&self) -> TokenStream {
         let src = &self.member;
-        if let Some(with) = &self.with{
-            match self.strategy{
+        if let Some(with) = &self.with {
+            match self.strategy {
                 MappingStrategy::Into => quote::quote!(#with(self.#src)),
-                MappingStrategy::Mapper => quote::quote!{#with(&self.#src)},
+                MappingStrategy::Mapper => quote::quote! {#with(&self.#src)},
             }
-        }else{
-            match self.strategy{
+        } else {
+            match self.strategy {
                 MappingStrategy::Into => quote::quote!(self.#src),
-                MappingStrategy::Mapper => quote::quote!{self.#src.clone()},
+                MappingStrategy::Mapper => quote::quote! {self.#src.clone()},
             }
         }
     }

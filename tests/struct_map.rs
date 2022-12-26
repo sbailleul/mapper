@@ -41,7 +41,6 @@ pub fn map_one_field_should_works() {
 }
 #[test]
 pub fn map_field_with_generic_destination_type() {
-
     #[derive(Mapper)]
     #[to(Person::<String>)]
     struct User {
@@ -50,25 +49,29 @@ pub fn map_field_with_generic_destination_type() {
     struct Person<T> {
         name: T,
     }
-    let user = User { name: "Marie".to_owned() };
+    let user = User {
+        name: "Marie".to_owned(),
+    };
     let person: Person<String> = user.to();
     assert_eq!("Marie", person.name);
 }
 
 #[test]
 pub fn map_field_with_generics_destination_type() {
-
     #[derive(Mapper)]
     #[to(Person::<String, u8>)]
     struct User {
         name: String,
-        age: u8
+        age: u8,
     }
     struct Person<T, U> {
         name: T,
-        age: U
+        age: U,
     }
-    let user = User { name: "Marie".to_owned(), age: 35 };
+    let user = User {
+        name: "Marie".to_owned(),
+        age: 35,
+    };
     let person: Person<String, u8> = user.to();
     assert_eq!("Marie", person.name);
 }
@@ -83,9 +86,11 @@ pub fn map_field_by_consuming_self() {
     struct Person {
         name: String,
     }
-    let user = User{name: "Marie".to_owned()};
+    let user = User {
+        name: "Marie".to_owned(),
+    };
     let person: Person = user.into();
-    assert_eq!("Marie", person.name )
+    assert_eq!("Marie", person.name)
 }
 
 #[test]
@@ -98,9 +103,11 @@ pub fn map_field_use_all_strategies() {
     struct Person {
         name: String,
     }
-    let user = User{name: "Marie".to_owned()};
+    let user = User {
+        name: "Marie".to_owned(),
+    };
     let person_mapper: Person = user.to();
     let person_into: Person = user.into();
-    assert_eq!("Marie", person_into.name );
-    assert_eq!("Marie", person_mapper.name );
+    assert_eq!("Marie", person_into.name);
+    assert_eq!("Marie", person_mapper.name);
 }

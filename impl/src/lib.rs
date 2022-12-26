@@ -3,9 +3,9 @@
 #![feature(is_some_with)]
 mod ast;
 mod attr;
+mod common;
 mod expand;
 mod valid;
-mod common;
 extern crate proc_macro;
 
 use syn::parse_macro_input;
@@ -18,6 +18,3 @@ pub fn derive_mapper(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         .unwrap_or_else(|err| err.to_compile_error())
         .into()
 }
-
-
-

@@ -37,7 +37,7 @@ impl<Span: SpannedItemSpan, Item: SpannedItemItem> Display for SpannedItem<Span,
     }
 }
 
-impl<Span: SpannedItemSpan, Item: SpannedItemItem> Default for SpannedItem<Span, Item>{
+impl<Span: SpannedItemSpan, Item: SpannedItemItem> Default for SpannedItem<Span, Item> {
     fn default() -> Self {
         Self(Default::default(), Default::default())
     }

@@ -1,6 +1,6 @@
-use syn::{Type, Member, Path};
-use std::hash::Hash;
 use crate::attr::mapping_strategy::MappingStrategy;
+use std::hash::Hash;
+use syn::{Member, Path, Type};
 
 #[derive(Eq, Debug, Clone)]
 pub struct MappingField {
@@ -23,4 +23,3 @@ impl PartialEq for MappingField {
         self.ty == other.ty && self.strategy == other.strategy && self.member == other.member
     }
 }
-

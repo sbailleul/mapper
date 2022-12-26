@@ -1,6 +1,5 @@
-pub mod mapping_tree;
 pub mod mapping_field;
-
+pub mod mapping_tree;
 
 use std::collections::HashSet;
 
@@ -9,11 +8,9 @@ use proc_macro2::TokenStream;
 use syn::DeriveInput;
 use syn::Result;
 
-use crate::ast::Input;
+use crate::ast::data_type::Struct;
 use crate::ast::mapping_tree::MappingTree;
-use crate::{ast::data_type::Struct};
-
-
+use crate::ast::Input;
 
 pub fn derive(node: &DeriveInput) -> Result<TokenStream> {
     let input = Input::from_syn(node)?;

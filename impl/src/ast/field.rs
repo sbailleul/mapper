@@ -1,11 +1,6 @@
-
 use syn::{Fields, Index, Member, Result, Type};
 
-use crate::attr::{
-    self,
-    attr::Attrs,
-    field::{params::Params}, to::To,
-};
+use crate::attr::{self, attr::Attrs, field::params::Params, to::To};
 
 #[derive(Debug, Clone)]
 pub struct Field<'a> {
@@ -36,5 +31,4 @@ impl<'a> Field<'a> {
             ty: &node.ty,
         })
     }
-
 }

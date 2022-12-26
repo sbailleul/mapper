@@ -7,9 +7,7 @@
 This library provide definitions used by [mapper](https://docs.rs/mapper-api/1.0.1/mapper_api) crate
  */
 
-
-/// Trait defining a mapper converting itself to a destination Type of T 
-pub trait Mapper<T>{
-    fn to(&self)->T;
+/// Trait defining a mapper converting itself to a destination Type of T
+pub trait Mapper<T> {
+    fn to(&self) -> T;
 }
-

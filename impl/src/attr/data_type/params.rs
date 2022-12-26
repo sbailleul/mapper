@@ -1,13 +1,12 @@
-use std::{collections::HashSet};
+use std::collections::HashSet;
 
-
-use syn::{
-    parse::{Parse},
-    punctuated::Punctuated, Expr, Result, Token, Type, TypePath, Path, Error,
-};
+use syn::{parse::Parse, punctuated::Punctuated, Error, Expr, Path, Result, Token, Type, TypePath};
 
 use crate::{
-    attr::{mapping_strategy::{parse_strategy, MappingStrategy, MAX_STRATEGIES_BY_ATTRIBUTE}, spanned_item::SpannedItem},
+    attr::{
+        mapping_strategy::{parse_strategy, MappingStrategy, MAX_STRATEGIES_BY_ATTRIBUTE},
+        spanned_item::SpannedItem,
+    },
     common::punctuated_extensions::PunctuatedExtensions,
 };
 
@@ -17,8 +16,11 @@ pub struct Params {
     pub strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
 }
 
-impl  Params {
-    fn new(destinations: HashSet<TypePath>,  mut strategies: HashSet<SpannedItem<Path, MappingStrategy>>) -> Self {
+impl Params {
+    fn new(
+        destinations: HashSet<TypePath>,
+        mut strategies: HashSet<SpannedItem<Path, MappingStrategy>>,
+    ) -> Self {
         if strategies.is_empty() {
             strategies.insert(SpannedItem(None, MappingStrategy::default()));
         }
@@ -29,15 +31,20 @@ impl  Params {
     }
 }
 
-impl  Parse for Params {
+impl Parse for Params {
     fn parse(input: syn::parse::ParseStream) -> Result<Self> {
         let mut destinations = HashSet::new();
-        let mut strategies =
-            HashSet::with_capacity(MAX_STRATEGIES_BY_ATTRIBUTE);
+        let mut strategies = HashSet::with_capacity(MAX_STRATEGIES_BY_ATTRIBUTE);
 
         let args = Punctuated::<Type, Token![,]>::parse_separated_nonempty_until(input, |p| {
             p.peek2(Token![=])
-        }).map_err(|_|Error::new(input.span(), "To struct attribute destinations couldn't be parsed"))?;
+        })
+        .map_err(|_| {
+            Error::new(
+                input.span(),
+                "To struct attribute destinations couldn't be parsed",
+            )
+        })?;
 
         for arg in args {
             match arg {
@@ -48,8 +55,13 @@ impl  Parse for Params {
             }
         }
         if !input.is_empty() {
-            let args = Punctuated::<Expr, Token![,]>::parse_separated_nonempty(input)
-                .map_err(|_| Error::new(input.span(), "To struct attribute configuration couldn't be parsed"))?;
+            let args =
+                Punctuated::<Expr, Token![,]>::parse_separated_nonempty(input).map_err(|_| {
+                    Error::new(
+                        input.span(),
+                        "To struct attribute configuration couldn't be parsed",
+                    )
+                })?;
             for arg in args {
                 match arg {
                     Expr::Assign(assign) => {
@@ -64,11 +76,14 @@ impl  Parse for Params {
     }
 }
 
-fn parse_config(assign: syn::ExprAssign, strategies: &mut HashSet<SpannedItem<Path, MappingStrategy>>) -> Result<()> {
+fn parse_config(
+    assign: syn::ExprAssign,
+    strategies: &mut HashSet<SpannedItem<Path, MappingStrategy>>,
+) -> Result<()> {
     if let Expr::Path(config) = *assign.left {
         if config.path.is_ident("strategy") {
             if let Expr::Path(strategy_expr) = *assign.right {
-                let founded_strategies =  parse_strategy(&strategy_expr.path, strategies)?;
+                let founded_strategies = parse_strategy(&strategy_expr.path, strategies)?;
                 strategies.extend(founded_strategies);
             }
         }

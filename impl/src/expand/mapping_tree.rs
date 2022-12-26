@@ -1,10 +1,9 @@
-use quote::{ToTokens};
+use quote::ToTokens;
 
 use crate::{ast::mapping_tree::MappingTree, attr::mapping_strategy::MappingStrategy};
 
-
-impl MappingTree{
-    pub fn expand(&self, tokens: &mut  proc_macro2::TokenStream)  {
+impl MappingTree {
+    pub fn expand(&self, tokens: &mut proc_macro2::TokenStream) {
         let dest = &self.destination;
         let ty = &self.ident;
         let fields = self.mapping_fields.iter().map(|f| {
@@ -36,4 +35,4 @@ impl MappingTree{
         };
         implementation.to_tokens(tokens);
     }
-} 
+}

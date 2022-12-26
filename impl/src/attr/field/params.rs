@@ -1,5 +1,4 @@
-use std::{collections::HashSet};
-
+use std::collections::HashSet;
 
 use syn::{
     custom_keyword, parse::Parse, punctuated::Punctuated, token::Comma, Error, Expr, ExprPath,
@@ -60,7 +59,8 @@ impl Parse for Params {
                     HashSet::with_capacity(0),
                     SpannedItem(exclude_path, true),
                     HashSet::with_capacity(0),
-                ).map_err(|err| syn::Error::new(input.span(), err));
+                )
+                .map_err(|err| syn::Error::new(input.span(), err));
             } else {
                 return Err(Error::new(input.span(), "Cannot exclude field for all destinations if exclude arg isn't the only argument of the attribute"));
             }

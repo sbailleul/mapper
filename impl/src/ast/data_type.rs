@@ -1,11 +1,11 @@
 use proc_macro2::Ident;
-use syn::{DeriveInput, Generics, DataStruct,Result, TypePath};
+use syn::{DataStruct, DeriveInput, Generics, Result, TypePath};
 
-use crate::attr::{data_type::{params::Params}, self, mapping_strategy::MappingStrategy, attr::Attrs, to::To};
+use crate::attr::{
+    self, attr::Attrs, data_type::params::Params, mapping_strategy::MappingStrategy, to::To,
+};
 
 use super::field::Field;
-
-
 
 #[derive(Clone, Debug)]
 pub struct Struct<'a> {
@@ -30,9 +30,19 @@ impl<'a> Struct<'a> {
         })
     }
 
-    pub fn has_strategy_for_destination(&self, destination: &TypePath, strategy: &MappingStrategy) -> bool{
-        self.attrs.to.has_destination_for_strategy(destination, strategy) 
-        || self.fields.iter().any(|field| field.attrs.to.has_destination_for_strategy(destination, strategy))
+    pub fn has_strategy_for_destination(
+        &self,
+        destination: &TypePath,
+        strategy: &MappingStrategy,
+    ) -> bool {
+        self.attrs
+            .to
+            .has_destination_for_strategy(destination, strategy)
+            || self.fields.iter().any(|field| {
+                field
+                    .attrs
+                    .to
+                    .has_destination_for_strategy(destination, strategy)
+            })
     }
 }
-
