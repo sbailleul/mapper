@@ -1,9 +1,9 @@
 [package]
 name = "mapper"
-version = "1.0.7"
+version = "1.1.0"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 categories = ["rust-patterns"]
-description = "derive(Mapper)"
+description = "Mapping macro to help to reduce mapping boilerplate"
 edition = "2021"
 keywords = ["decoupling", "mapping", "derive"]
 license = "MIT OR Apache-2.0"
@@ -13,7 +13,7 @@ rust-version = "1.56"
 doctest = false
 
 [dependencies]
-mapper-impl = { version = "=1.0.3", path = "impl" }
+mapper-impl = { version = "=1.1.0", path = "impl" }
 mapper-api = { version = "=1.0.2", path = "api" }
 
 [dev-dependencies]
