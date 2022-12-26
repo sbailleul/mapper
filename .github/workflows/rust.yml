@@ -20,7 +20,7 @@ jobs:
     - name: Install minimal nightly
       uses: actions-rs/toolchain@v1
       with:
-        default: true
+        override: true
     - name: Build
       uses: actions-rs/cargo@v1  
       with:
