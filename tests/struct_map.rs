@@ -111,3 +111,22 @@ pub fn map_field_use_all_strategies() {
     assert_eq!("Marie", person_into.name);
     assert_eq!("Marie", person_mapper.name);
 }
+
+
+
+#[test]
+pub fn mapping_works_for_tuple_structs() {
+    #[derive(Mapper)]
+    #[to(Person, strategy=all)]
+    struct User (
+        u16,
+    );
+    struct Person (
+        u16,
+    );
+    let user = User (30 );
+    let person_mapper: Person = user.to();
+    let person_into: Person = user.into();
+    assert_eq!(30, person_into.0);
+    assert_eq!(30, person_mapper.0);
+}

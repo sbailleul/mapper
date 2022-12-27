@@ -37,7 +37,7 @@ struct Person{
 <br>
 
 ## Disclaimer
-- Macro works only on C style struct like : struct MyStruct{field: u8}
+- Macro works only on structs
 - Mapper doesn't handle nested properties
 
 
@@ -60,7 +60,6 @@ impl Mapper<Person> for User{
         Person{name: self.name.clone()}
     }
 }
-
 ```
 ## Mapping types
 Two mapping types are available :
@@ -105,16 +104,88 @@ struct Person<T, U> {
 ```
 
 ### Strategy
-Trigger additive mapping for mapping destination and specified strategy,
+Trigger additive mapping for mapping destination and specified strategy e.g:
+
+````rust
+#[derive(Mapper)]
+struct User(#[to(Person, strategy=into)]u16, String);
+struct Person(u16);
+````
+Generate 🔄 :
+
+```rust
+impl Into<Person> for User{
+    fn into(self)->Person{
+        Person{0:self.0}
+    }
+}
+```
+
 
 ### Exclude
 Optional parameter, specify if the field is excluded for mapping, there is 2 kind of exclusion.
-- Unconditionally exclusion, exclude field of any kind of mapping e.g ```#[to(exclude)]```
-- Exclusion for specific destination, determined for destination e.g ```#[to(Destination, exclude]```
-⚠️ not works for additive mapping
+- Unconditionally exclusion, exclude field of any kind of mapping e.g :
+
+````rust
+#[derive(Mapper)]
+#[to(Person)]
+struct User(u16, #[to(exclude)]String);
+struct Person(u16);
+````
+Generate 🔄 :
+
+```rust
+impl Mapper<Person> for User{
+    fn into(self)->Person{
+        Person{0:self.0}
+    }
+}
+```
+
+- Exclusion for specific destination (⚠️ not works for additive mapping), exclude field for specific destination mapping e.g :
+````rust
+#[derive(Mapper)]
+#[to(Person,Account, strategy=into)]
+struct User(u16, #[to(Person,exclude)]String);
+struct Account(u16, String);
+struct Person(u16);
+````
+Generate 🔄 :
+
+```rust
+impl Into<Person> for User{
+    fn into(self)->Person{
+        Person{0:self.0}
+    }
+}
+impl Into<Account> for User{
+    fn into(self)->Account{
+        Account{0:self.0, 1: self.1}
+    }
+}
+```
+
 
 ### Field
-Optional parameter, target the destination type field
+Optional parameter, target the destination type field e.g :
+````rust
+#[derive(Mapper)]
+#[to(Person)]
+struct User{
+    #[to(Person, field=0)
+    name: String
+};
+struct Person( String);
+````
+Generate 🔄 :
+
+```rust
+impl Mapper<Person> for User{
+    fn to(&self)->Person{
+        Person{0:self.name.clone()}
+    }
+}
+```
 
 ### With
 Optional parameter, provide a function to transform the annotated field to the destination field.
