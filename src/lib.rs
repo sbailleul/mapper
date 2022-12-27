@@ -1,8 +1,9 @@
-/*! [![github]](https://github.com/sbailleul/mapper)&ensp;[![crates-io]](https://crates.io/crates/mapper)&ensp;[![docs-rs]](https://docs.rs/mapper)
+/*! [![github]](https://github.com/sbailleul/mapper)&ensp;[![crates-io]](https://crates.io/crates/mapper)&ensp;[![docs-rs]](https://docs.rs/mapper)&ensp;[![mapper-ci]](https://github.com/sbailleul/mapper/actions/workflows/rust.yml)
 
 [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
 [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&labelColor=555555&logo=rust
 [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs
+[mapper-ci]: https://github.com/sbailleul/mapper/actions/workflows/rust.yml/badge.svg
 This library provides a convenient derive macro for implementing [mapper_api::Mapper<T>] or [std::convert::Into] trait and generate mapping without boilerplate.
 
 <br>
