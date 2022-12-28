@@ -1,6 +1,6 @@
 [package]
 name = "mapper"
-version = "1.1.1"
+version = "1.1.2"
 authors = ["Sacha Bailleul <bailleul.sacha@gmail.com>"]
 categories = ["rust-patterns"]
 description = "Mapping macro to help to reduce mapping boilerplate"
