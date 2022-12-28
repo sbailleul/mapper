@@ -172,3 +172,19 @@ pub fn additive_mapping_use_all_strategies() {
     assert_eq!(30, person_into.age);
     assert_eq!(30, person_mapper.age);
 }
+
+#[test]
+pub fn field_mapping_should_works() {
+    #[derive(Mapper)]
+    #[to(Person)]
+    struct User {
+        #[to(Person, field=_age)]
+        age: u16,
+    }
+    struct Person {
+        _age: u16,
+    }
+    let user = User { age: 30 };
+    let person_mapper: Person = user.to();
+    assert_eq!(30, person_mapper._age);
+}

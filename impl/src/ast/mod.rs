@@ -56,6 +56,7 @@ impl From<Struct<'_>> for HashSet<MappingTree> {
                 for with in &field_to.params.with {
                     add_with_function(&mut mapping_trees, &value, field_to, with, field);
                 }
+                add_non_strategy_dependent_fields_params(&mut mapping_trees, field_to, field);
             }
         }
         mapping_trees
@@ -97,6 +98,42 @@ fn add_with_function(
         ),
     });
     mapping_trees.replace(mapping_tree);
+}
+
+fn add_non_strategy_dependent_fields_params(
+    mapping_trees: &mut HashSet<MappingTree>,
+    field_to: &To<Params>,
+    field: &field::Field,
+) {
+    if field_to.params.destination.is_none() {
+        return;
+    }
+    let updated_mapping_trees = mapping_trees
+        .iter()
+        .filter(|&mapping_tree| {
+            field_to.params.destination.is_none()
+                || &mapping_tree.destination == field_to.params.destination.as_ref().unwrap()
+        })
+        .map(|mapping_tree| {
+            let mut mapping_tree = mapping_tree.clone();
+            let updated_fields = mapping_tree
+                .mapping_fields
+                .iter()
+                .filter(|f| f.member == field.member)
+                .map(|f| MappingField {
+                    field: field_to.params.field.clone(),
+                    ..f.clone()
+                })
+                .collect::<Vec<MappingField>>();
+            for mapping_field in updated_fields {
+                mapping_tree.mapping_fields.replace(mapping_field);
+            }
+            mapping_tree
+        })
+        .collect::<Vec<MappingTree>>();
+    for mapping_tree in updated_mapping_trees {
+        mapping_trees.replace(mapping_tree);
+    }
 }
 
 fn add_mapping_field_for_additive_mapping_trees(
