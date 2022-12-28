@@ -13,7 +13,7 @@ rust-version = "1.56"
 doctest = false
 
 [dependencies]
-mapper-impl = { version = "=1.1.0", path = "impl" }
+mapper-impl = { version = "=1.1.1", path = "impl" }
 mapper-api = { version = "=1.0.2", path = "api" }
 
 [dev-dependencies]
