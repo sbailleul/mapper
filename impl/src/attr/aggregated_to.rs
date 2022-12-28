@@ -40,3 +40,9 @@ impl<T> AggregatedTo<T> {
         }
     }
 }
+
+impl<T> Default for AggregatedTo<T> {
+    fn default() -> AggregatedTo<T> {
+        Self::new()
+    }
+}

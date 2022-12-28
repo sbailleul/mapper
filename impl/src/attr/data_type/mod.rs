@@ -6,7 +6,7 @@ use syn::{Error, Result};
 use self::params::Params;
 
 use super::aggregated_to::AggregatedTo;
-use super::attr::Attrs;
+use super::attrs::Attrs;
 
 use super::to::To;
 pub mod params;
@@ -20,7 +20,7 @@ pub fn get(node: &DeriveInput) -> Result<Attrs<To<Params>>> {
                 let registered_destinations = aggregated_to
                     .destinations_by_strategy
                     .entry(strategy.clone())
-                    .or_insert(HashSet::new());
+                    .or_insert_with(HashSet::new);
                 let to_destinations = to.params.destinations.clone();
                 let common_destinations = to_destinations.intersection(registered_destinations);
                 if common_destinations.clone().count() > 0 {

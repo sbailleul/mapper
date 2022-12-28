@@ -2,7 +2,7 @@ use proc_macro2::Ident;
 use syn::{DataStruct, DeriveInput, Generics, Result, TypePath};
 
 use crate::attr::{
-    self, attr::Attrs, data_type::params::Params, mapping_strategy::MappingStrategy, to::To,
+    self, attrs::Attrs, data_type::params::Params, mapping_strategy::MappingStrategy, to::To,
 };
 
 use super::field::Field;

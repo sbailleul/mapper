@@ -1,5 +1,5 @@
 pub mod aggregated_to;
-pub mod attr;
+pub mod attrs;
 pub mod data_type;
 pub mod field;
 pub mod mapping_strategy;

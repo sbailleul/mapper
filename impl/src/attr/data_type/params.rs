@@ -47,11 +47,8 @@ impl Parse for Params {
         })?;
 
         for arg in args {
-            match arg {
-                Type::Path(ty) => {
-                    destinations.insert(ty);
-                }
-                _ => (),
+            if let Type::Path(ty) = arg {
+                destinations.insert(ty);
             }
         }
         if !input.is_empty() {
@@ -63,11 +60,8 @@ impl Parse for Params {
                     )
                 })?;
             for arg in args {
-                match arg {
-                    Expr::Assign(assign) => {
-                        parse_config(assign, &mut strategies)?;
-                    }
-                    _ => (),
+                if let Expr::Assign(assign) = arg {
+                    parse_config(assign, &mut strategies)?;
                 }
             }
         }

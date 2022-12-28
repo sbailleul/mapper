@@ -72,7 +72,7 @@ pub fn parse_strategy(
     } else {
         let ident = path
             .get_ident()
-            .ok_or(Error::new_spanned(path, "Invalid strategy"))?;
+            .ok_or_else(|| Error::new_spanned(path, "Invalid strategy"))?;
         let strategies = MappingStrategy::str_to_hash_set(ident.to_string().as_ref())
             .map_err(|e| Error::new_spanned(path, e))?;
         Ok(strategies

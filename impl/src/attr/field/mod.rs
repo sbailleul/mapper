@@ -9,7 +9,7 @@ use super::mapping_strategy::MappingStrategy;
 pub mod params;
 
 use super::aggregated_to::AggregatedTo;
-use super::attr::Attrs;
+use super::attrs::Attrs;
 use super::to::To;
 
 impl To<'_, Params> {
@@ -30,19 +30,23 @@ impl To<'_, Params> {
         destination: &TypePath,
         strategy: &MappingStrategy,
     ) -> bool {
-        self.params.destination.is_some_and(|dest| {
+        if let Some(dest) = &self.params.destination {
             dest == destination
                 && self
                     .params
                     .strategies
                     .iter()
                     .any(|self_strategy| &self_strategy.1 == strategy)
-        })
+        } else {
+            false
+        }
     }
     pub fn is_additive_mapping_for_destination(&self, destination: &TypePath) -> bool {
-        self.params
-            .destination
-            .is_some_and(|dest| dest == destination && !self.params.strategies.is_empty())
+        if let Some(dest) = &self.params.destination {
+            dest == destination && !self.params.strategies.is_empty()
+        } else {
+            false
+        }
     }
 }
 
@@ -55,7 +59,7 @@ pub fn get(input: &syn::Field) -> syn::Result<Attrs<To<Params>>> {
                 let registered_destinations = aggregated_to
                     .destinations_by_strategy
                     .entry(strategy.clone())
-                    .or_insert(HashSet::new());
+                    .or_insert_with(HashSet::new);
                 if let Some(to_destination) = &to.params.destination {
                     if let Some(destination) =
                         registered_destinations.replace(to_destination.clone())

@@ -66,7 +66,10 @@ impl MappingTree {
         }
     }
     pub fn has_mapping_type(&self, mapping_type: &MappingType) -> bool {
-        self.mapping_type
-            .is_some_and(|mapping_tree_type| mapping_tree_type == mapping_type)
+        if let Some(mapping_tree_type) = &self.mapping_type {
+            mapping_tree_type == mapping_type
+        } else {
+            false
+        }
     }
 }
