@@ -1,6 +1,7 @@
 name: MapperCI
 
 on:
+  repository_dispatch:
   push:
     branches: [ "master" ]
   pull_request:
